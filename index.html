@@ -265,18 +265,18 @@ li{margin-bottom:.45em;}
   width: 100%; height: 100%;
   object-fit: cover;
   z-index: 0;
-  opacity: 0.2;
+  opacity: 0.4; 
   pointer-events: none;
 }
 
 .toc-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(180deg, rgba(13,14,15,0.7) 0%, rgba(13,14,15,0.95) 100%);
+  background: linear-gradient(180deg, rgba(13,14,15,0.6) 0%, rgba(13,14,15,0.95) 100%);
   z-index: 1;
 }
 body.theme-light .toc-overlay {
-  background: linear-gradient(180deg, rgba(234,226,210,0.7) 0%, rgba(234,226,210,0.95) 100%);
+  background: linear-gradient(180deg, rgba(234,226,210,0.6) 0%, rgba(234,226,210,0.95) 100%);
 }
 
 .toc-inner {
@@ -326,7 +326,7 @@ body.theme-light .toc-overlay {
   font-size:1.08rem;
   line-height:1.35;
   transition:color .2s ease, border-color .2s ease, padding-left .25s ease;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 body.theme-light .toc-list a { text-shadow: 0 1px 3px rgba(255,255,255,0.8); }
 
@@ -415,9 +415,9 @@ main{position:relative;z-index:1;}
 
 .chapter{
   display:none;
-  max-width:var(--maxw);
-  margin:0 auto;
-  padding:clamp(34px,6vw,76px) var(--pad) 40px;
+  width:100%;
+  position:relative;
+  overflow:hidden;
 }
 
 .chapter.is-active{
@@ -428,6 +428,14 @@ main{position:relative;z-index:1;}
 @keyframes chapterIn{
   0% { opacity: 0; transform: translateY(50px) scale(0.95) rotateX(5deg); filter: blur(8px); }
   100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); filter: blur(0); }
+}
+
+.chapter-content {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(34px,6vw,76px) var(--pad) 40px;
+  position: relative;
+  z-index: 2;
 }
 
 .chapter-title, .cover-title {
@@ -498,6 +506,16 @@ h3.section-h{
   font-size:clamp(1.4rem,3.4vw,1.85rem); margin-top:2.6rem; padding-bottom:.4rem; border-bottom:1px solid var(--rule);
 }
 
+h4.sub-h{
+  font-family:var(--font-ui);
+  font-size:.82rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:1.8rem 0 .6rem;
+  font-weight:600;
+}
+
 /* ==========================================================================
    7. IMAGE STYLES & 3D TILT
    ========================================================================== */
@@ -536,20 +554,25 @@ h3.section-h{
 /* ==========================================================================
    9. COVER
    ========================================================================== */
-#cover{ max-width:1000px; padding-top:clamp(20px,4vw,52px); text-align:center; }
+#cover{ 
+  max-width:1000px; 
+  margin: 0 auto;
+  padding-top:clamp(20px,4vw,52px); 
+  text-align:center; 
+}
 
 .cover-frame{
   border:1px solid var(--rule-strong); padding:clamp(24px,5vw,58px) clamp(18px,4vw,48px); position:relative; overflow:hidden; background-color:var(--surface);
 }
 
-.bg-video {
-  position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); z-index: 0; object-fit: cover; opacity: 0.45; pointer-events: none; animation: slowZoom 20s infinite alternate linear;
+#cover .bg-video {
+  position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); z-index: 0; object-fit: cover; opacity: 0.55; pointer-events: none; animation: slowZoom 20s infinite alternate linear;
 }
 
 @keyframes slowZoom { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.15); } }
 
-.video-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, transparent 0%, rgba(13,14,15,0.85) 100%); z-index: 1; }
-body.theme-light .video-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(234,226,210,0.9) 100%); }
+#cover .video-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, rgba(13,14,15,0.3) 0%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #cover .video-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.3) 0%, rgba(234,226,210,0.95) 100%); }
 
 .cover-content { position: relative; z-index: 2; }
 
@@ -593,44 +616,65 @@ body.theme-light .cover-meta div { background:rgba(243, 237, 225, 0.85); }
 /* ==========================================================================
    10. SECCIONES CON FONDOS
    ========================================================================== */
-#work, #read-book, #movement, #setting, #characters, #themes { position: relative; overflow: hidden; }
+#work, #read-book, #movement, #setting, #characters, #themes, #author { position: relative; }
 
-#work .bg-video { opacity: 0.15; animation: slowZoomWork 25s infinite alternate linear; }
+/* THE AUTHOR */
+#author .bg-video { opacity: 0.45; animation: slowZoomAuthor 30s infinite alternate linear; }
+@keyframes slowZoomAuthor { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
+#author .video-overlay { background: radial-gradient(circle at center, rgba(13,14,15,0.3) 0%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #author .video-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.3) 0%, rgba(234,226,210,0.95) 100%); }
+
+/* THE WORK */
+#work .bg-video { opacity: 0.40; animation: slowZoomWork 25s infinite alternate linear; }
 @keyframes slowZoomWork { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.05); } }
-#work .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.4) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
-body.theme-light #work .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.4) 50%, rgba(234,226,210,0.95) 100%); }
-#work .chapter-content { position: relative; z-index: 2; }
+#work .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.6) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #work .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.6) 50%, rgba(234,226,210,0.95) 100%); }
 
+/* LITERARY MOVEMENT */
 .bg-image-container { position: absolute; inset: -5%; z-index: 0; transition: transform 0.2s ease-out; }
-#movement .bg-interactive-image { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0.45; animation: slowBreath 20s infinite alternate ease-in-out; filter: sepia(30%) contrast(120%) brightness(0.7); }
+#movement .bg-interactive-image { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0.55; animation: slowBreath 20s infinite alternate ease-in-out; filter: sepia(30%) contrast(120%) brightness(0.7); }
 @keyframes slowBreath { 0% { transform: scale(1) rotate(0deg); } 100% { transform: scale(1.1) rotate(1deg); } }
-#movement .image-overlay { position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 0%, rgba(13,14,15,0.9) 100%), linear-gradient(180deg, rgba(13,14,15,0.9) 0%, transparent 20%, transparent 80%, rgba(13,14,15,0.9) 100%); z-index: 1; }
-body.theme-light #movement .image-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(234,226,210,0.9) 100%), linear-gradient(180deg, rgba(234,226,210,0.9) 0%, transparent 20%, transparent 80%, rgba(234,226,210,0.9) 100%); }
-#movement .chapter-content { position: relative; z-index: 2; }
+#movement .image-overlay { position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(13,14,15,0.4) 0%, rgba(13,14,15,0.95) 100%), linear-gradient(180deg, rgba(13,14,15,0.9) 0%, transparent 20%, transparent 80%, rgba(13,14,15,0.9) 100%); z-index: 1; }
+body.theme-light #movement .image-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.4) 0%, rgba(234,226,210,0.95) 100%), linear-gradient(180deg, rgba(234,226,210,0.9) 0%, transparent 20%, transparent 80%, rgba(234,226,210,0.9) 100%); }
 
-#characters .bg-video { opacity: 0.25; animation: slowZoomCharacters 35s infinite alternate linear; }
+/* CHARACTERS */
+#characters .bg-video { opacity: 0.45; animation: slowZoomCharacters 35s infinite alternate linear; }
 @keyframes slowZoomCharacters { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
-#characters .video-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(13,14,15,0.9) 100%); z-index: 1; }
-body.theme-light #characters .video-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(234,226,210,0.9) 100%); }
-#characters .chapter-content { position: relative; z-index: 2; }
+#characters .video-overlay { background: radial-gradient(circle at center, rgba(13,14,15,0.3) 0%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #characters .video-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.3) 0%, rgba(234,226,210,0.95) 100%); }
 
-#themes .bg-video { opacity: 0.15; animation: slowZoomThemes 30s infinite alternate linear; }
+/* THEMES */
+#themes .bg-video { opacity: 0.40; animation: slowZoomThemes 30s infinite alternate linear; }
 @keyframes slowZoomThemes { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.08); } }
-#themes .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.85) 0%, rgba(13,14,15,0.5) 50%, rgba(13,14,15,0.85) 100%); z-index: 1; }
-body.theme-light #themes .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.85) 0%, rgba(234,226,210,0.5) 50%, rgba(234,226,210,0.85) 100%); }
-#themes .chapter-content { position: relative; z-index: 2; }
+#themes .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.6) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #themes .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.6) 50%, rgba(234,226,210,0.95) 100%); }
 
-#setting .bg-video { opacity: 0.20; animation: slowZoomSetting 30s infinite alternate linear; }
+/* SETTING & CONFLICT */
+#setting .bg-video { opacity: 0.45; animation: slowZoomSetting 30s infinite alternate linear; }
 @keyframes slowZoomSetting { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
-#setting .video-overlay { background: radial-gradient(circle at center, rgba(13,14,15,0.2) 0%, rgba(13,14,15,0.95) 100%); z-index: 1; }
-body.theme-light #setting .video-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.2) 0%, rgba(234,226,210,0.95) 100%); }
-#setting .chapter-content { position: relative; z-index: 2; }
+#setting .video-overlay { background: radial-gradient(circle at center, rgba(13,14,15,0.3) 0%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #setting .video-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.3) 0%, rgba(234,226,210,0.95) 100%); }
 
-#read-book .bg-video { opacity: 0.35; animation: slowZoomRead 30s infinite alternate linear; }
+/* READ BOOK */
+#read-book .bg-video { opacity: 0.55; animation: slowZoomRead 30s infinite alternate linear; }
 @keyframes slowZoomRead { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.08); } }
-#read-book .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.65) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
-body.theme-light #read-book .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.65) 50%, rgba(234,226,210,0.95) 100%); }
-#read-book .chapter-content { position: relative; z-index: 2; }
+#read-book .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.7) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #read-book .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.7) 50%, rgba(234,226,210,0.95) 100%); }
+
+/* ESTILOS GENERALES DE VIDEO (Cubrir toda la sección) */
+.bg-video {
+  position: absolute; 
+  top: 50%; 
+  left: 50%; 
+  min-width: 100%; 
+  min-height: 100%; 
+  width: auto; 
+  height: auto; 
+  transform: translate(-50%, -50%); 
+  z-index: 0; 
+  object-fit: cover; 
+  pointer-events: none;
+}
 
 /* ==========================================================================
    11. ACCORDION & AUDIO CONTROLS
@@ -656,7 +700,7 @@ body.theme-light #read-book .video-overlay { background: linear-gradient(180deg,
 .acc-inner p{font-size:.94rem;line-height:1.8;}
 .acc-inner .reflect{ margin-top:1rem; padding:.85rem 1rem; border-left:2px solid var(--accent); background:var(--surface-2); font-style:italic; font-size:.88rem; color:var(--muted); border-radius:0 2px 2px 0; }
 
-/* NUEVO DISEÑO DEL REPRODUCTOR */
+/* REPRODUCTOR DE AUDIO */
 .audio-wrap {
   display: flex;
   justify-content: flex-end;
@@ -667,14 +711,14 @@ body.theme-light #read-book .video-overlay { background: linear-gradient(180deg,
 .audio-player {
   display: flex;
   align-items: center;
-  background: rgba(22, 24, 26, 0.6);
+  background: rgba(22, 24, 26, 0.8);
   border: 1px solid var(--rule-strong);
   padding: 4px;
   border-radius: 24px;
   backdrop-filter: blur(4px);
 }
 body.theme-light .audio-player {
-  background: rgba(243, 237, 225, 0.6);
+  background: rgba(243, 237, 225, 0.8);
 }
 
 .audio-btn {
@@ -719,7 +763,6 @@ body.theme-light .audio-player {
   height: 12px;
 }
 
-
 /* ==========================================================================
    12. CHARACTER CARDS
    ========================================================================== */
@@ -727,12 +770,14 @@ body.theme-light .audio-player {
 @media(min-width:640px){ .char-grid{grid-template-columns:1fr 1fr;} }
 
 .char-card{
-  display:flex; flex-direction:column; gap:.5rem; text-align:left; background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:1.5rem 1.4rem; cursor:pointer; color:inherit; font-family:inherit; position:relative; overflow:hidden;
+  display:flex; flex-direction:column; gap:.5rem; text-align:left; background:rgba(22, 24, 26, 0.85); border:1px solid var(--rule); border-radius:2px; padding:1.5rem 1.4rem; cursor:pointer; color:inherit; font-family:inherit; position:relative; overflow:hidden;
   transform-style: preserve-3d;
-  transition: border-color .3s ease, box-shadow .3s ease;
+  transition: border-color .3s ease, box-shadow .3s ease, background-color .3s ease;
 }
+body.theme-light .char-card { background:rgba(243, 237, 225, 0.85); }
+
 .char-card::after{ content:''; position:absolute; inset:auto 0 0 0; height:2px; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .4s ease; }
-.char-card:hover, .char-card:focus-visible{ border-color:var(--rule-strong); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+.char-card:hover, .char-card:focus-visible{ border-color:var(--rule-strong); box-shadow: 0 15px 30px rgba(0,0,0,0.4); background:var(--surface); }
 .char-card:hover::after, .char-card:focus-visible::after{transform:scaleX(1);}
 
 .char-card .role, .char-card .name, .char-card .hint { transform: translateZ(30px); }
@@ -925,18 +970,56 @@ body.theme-light .audio-player {
 
   <!-- CHAPTER 02 — THE AUTHOR -->
   <section class="chapter" id="author" aria-labelledby="authorTitle">
-    <span class="label reveal">Chapter 02 · Literary Inspiration</span>
-    <h2 class="chapter-title reveal delay-1" id="authorTitle">The Author: Mary Shelley</h2>
-    <p class="chapter-sub reveal delay-1">The mind behind the modern Prometheus</p>
-
-    <figure class="figure-img reveal-scale delay-2 tilt-target">
-      <img src="https://espacio.fundaciontelefonica.com/wp-content/uploads/2016/06/mary_shelley-1100x550.jpg" alt="Mary Wollstonecraft Shelley Portrait">
-      <figcaption>Mary Wollstonecraft Shelley (1797–1851).</figcaption>
-    </figure>
-
-    <p class="lead reveal delay-2">Mary Shelley was a British novelist, essayist and short-story writer. Born in 1797 to two radical thinkers (William Godwin and Mary Wollstonecraft), she grew up surrounded by books and political debate.</p>
     
-    <p class="reveal delay-3">In 1816, during a stay near Lake Geneva with Lord Byron and Percy Bysshe Shelley, she conceived the idea for <em>Frankenstein</em> during a ghost-story writing challenge. What started as a terrifying tale became a profound reflection on life, death, and creation.</p>
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://cdn.pixabay.com/video/2022/02/08/107189-678129960_large.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 02 · Literary Inspiration</span>
+      <h2 class="chapter-title reveal delay-1" id="authorTitle">The Author: Mary Shelley</h2>
+      <p class="chapter-sub reveal delay-1">The mind behind the modern Prometheus</p>
+
+      <figure class="figure-img reveal-scale delay-2 tilt-target">
+        <img src="https://espacio.fundaciontelefonica.com/wp-content/uploads/2016/06/mary_shelley-1100x550.jpg" alt="Mary Wollstonecraft Shelley Portrait">
+        <figcaption>Mary Wollstonecraft Shelley (1797–1851).</figcaption>
+      </figure>
+
+      <p class="lead reveal delay-2">Mary Wollstonecraft Godwin was born on 30 August 1797 in London. Her mother, the philosopher Mary Wollstonecraft (author of <em>A Vindication of the Rights of Woman</em>), died of puerperal fever just days after the birth. Mary was raised by her father, William Godwin, a political philosopher and novelist, who remarried in 1801 to Mary Jane Clairmont. Her relationship with her stepmother was strained.</p>
+      
+      <p class="reveal delay-3">Although she received little formal schooling, she had access to her father’s library and met figures such as Samuel Taylor Coleridge, who visited the family home. She is said to have read beside her mother’s grave in St Pancras churchyard.</p>
+
+      <h3 class="section-h reveal delay-3">Relationship with Percy Bysshe Shelley</h3>
+      <p class="reveal delay-3">At 16, she met Percy Shelley, a devoted follower of her father, who was already married. In 1814 they eloped to France with her stepsister, Claire Clairmont, causing a scandal and a temporary break with Godwin. The couple suffered financial hardship and the death of their first daughter in 1815, shortly after her birth.</p>
+
+      <h3 class="section-h reveal delay-4">The Birth of Frankenstein</h3>
+      <p class="reveal delay-4">In the summer of 1816, the “Year Without a Summer,” the group gathered at Villa Diodati by Lake Geneva. Lord Byron proposed that each of them write a ghost story. From this came the idea for <em>Frankenstein; or, The Modern Prometheus</em>, published anonymously in 1818 when she was only 20. The revised 1831 edition carried her name and included her own introduction on the novel’s origins.</p>
+
+      <h3 class="section-h reveal delay-4">Personal Tragedies</h3>
+      <ul class="reveal delay-4">
+        <li>She married Percy Shelley in December 1816, after the suicide of his first wife, Harriet.</li>
+        <li>Of her children, only Percy Florence (born 1819) survived to adulthood; she lost three others in infancy.</li>
+        <li>In 1822, Percy Shelley drowned in the Gulf of La Spezia, Italy, when she was 24.</li>
+      </ul>
+
+      <h3 class="section-h reveal delay-4">Career as a Widow</h3>
+      <p class="reveal delay-4">She returned to England in 1823 and supported herself by writing. She also devoted great effort to editing and promoting Percy Shelley’s poetry, which played a decisive role in building his posthumous reputation.</p>
+      
+      <ul class="fact-list reveal delay-4">
+        <li><span class="k">Valperga (1823)</span><span class="v">A historical novel</span></li>
+        <li><span class="k">The Last Man (1826)</span><span class="v">An apocalyptic novel and an early work of science fiction</span></li>
+        <li><span class="k">The Fortunes of Perkin Warbeck (1830)</span><span class="v">Historical novel</span></li>
+        <li><span class="k">Lodore (1835) & Falkner (1837)</span><span class="v">Later novels</span></li>
+        <li><span class="k">Other works</span><span class="v">Travel writing, numerous short stories, and essays</span></li>
+      </ul>
+
+      <h3 class="section-h reveal delay-4">Final Years and Legacy</h3>
+      <p class="reveal delay-4">She died on 1 February 1851 in London, aged 53, probably from a brain tumor. In keeping with her wishes, she was buried in Bournemouth alongside the remains of her parents, which her son had moved there.</p>
+      
+      <p class="reveal delay-4">Today she is regarded as a pioneer of science fiction and a key figure of Romanticism, and <em>Frankenstein</em> remains a foundational work for debates about science, ethics, and human responsibility.</p>
+
+    </div>
   </section>
 
   <!-- CHAPTER 03 — THE WORK -->
@@ -957,13 +1040,20 @@ body.theme-light .audio-player {
         <figcaption>Classic edition of <em>Frankenstein; or, The Modern Prometheus</em>.</figcaption>
       </figure>
 
-      <p class="lead reveal delay-2">Published anonymously in 1818, <em>Frankenstein; or, The Modern Prometheus</em> is a novel that blends Gothic horror with philosophical inquiry, exploring the boundaries of life and death.</p>
+      <p class="lead reveal delay-2">Frankenstein is a Gothic and science fiction novel published anonymously in London on 1 January 1818, in three volumes. A second edition appeared in 1823, and the revised version, bearing the author’s name and an introduction by her, followed in 1831. Many consider it the first science fiction novel in literature.</p>
 
-      <ul class="fact-list reveal delay-3">
-        <li><span class="k">Title</span><span class="v"><em>Frankenstein; or, The Modern Prometheus</em></span></li>
-        <li><span class="k">First Publication</span><span class="v">1818 (London)</span></li>
-        <li><span class="k">Literary Form</span><span class="v">Novel</span></li>
-        <li><span class="k">Narrative Structure</span><span class="v">Frame narrative with multiple first-person narrators</span></li>
+      <h3 class="section-h reveal delay-3">Plot</h3>
+      <p class="reveal delay-3">Victor Frankenstein, a young Swiss scientist obsessed with uncovering the secret of life, succeeds in animating a creature assembled from parts of corpses. Horrified by its appearance, he abandons it. The creature, who is intelligent and sensitive, is rejected by every human he meets and ends up seeking revenge against his creator. The story unfolds as a chain of nested narratives: the letters of Captain Robert Walton, Victor’s own account, and the creature’s voice.</p>
+
+      <h3 class="section-h reveal delay-4">Key Facts</h3>
+      <ul class="fact-list reveal delay-4">
+        <li><span class="k">Full title</span><span class="v"><em>Frankenstein; or, The Modern Prometheus</em></span></li>
+        <li><span class="k">Genre</span><span class="v">Gothic novel, science fiction, epistolary novel</span></li>
+        <li><span class="k">First published</span><span class="v">1818 (anonymously)</span></li>
+        <li><span class="k">Author</span><span class="v">Mary Shelley, 18 when she began writing it and 20 when it was published</span></li>
+        <li><span class="k">Structure</span><span class="v">Three volumes, told through frame narratives</span></li>
+        <li><span class="k">Setting</span><span class="v">Switzerland, England, Scotland, and the Arctic</span></li>
+        <li><span class="k">Main characters</span><span class="v">Victor Frankenstein, the creature, Robert Walton, Elizabeth Lavenza, Henry Clerval</span></li>
       </ul>
 
       <div class="note reveal delay-4">
@@ -973,7 +1063,7 @@ body.theme-light .audio-player {
 
   </section>
 
-  <!-- CHAPTER 04 — THE LITERARY MOVEMENT (CON FONDO INTERACTIVO) -->
+  <!-- CHAPTER 04 — THE LITERARY MOVEMENT (INFORMACIÓN EXPANDIDA) -->
   <section class="chapter" id="movement" aria-labelledby="movementTitle">
     
     <div class="bg-image-container" id="movementBgContainer">
@@ -989,10 +1079,33 @@ body.theme-light .audio-player {
       <p class="lead reveal delay-2"><em>Frankenstein</em> belongs to two overlapping literary currents that shaped the 19th century:</p>
 
       <h3 class="section-h reveal delay-2">Romanticism</h3>
-      <p class="reveal delay-2">A movement emphasising emotion, imagination, individual experience, and the sublime power of nature. Mary Shelley was deeply connected to the Romantic poets of her time.</p>
+      <p class="reveal delay-2">A literary, artistic, and philosophical movement that emerged in the late 18th century and flourished until about 1850. It emphasised emotion, imagination, individual experience, and the sublime power of nature, rejecting the Enlightenment’s focus on reason and order. Mary Shelley was deeply connected to the Romantic poets of her time: her husband, Percy Bysshe Shelley, and their friend Lord Byron were central figures of the movement.</p>
 
-      <h3 class="section-h reveal delay-3">Gothic Fiction</h3>
-      <p class="reveal delay-3">A tradition exploring fear, mystery, isolation, psychological tension, and transgression of natural or moral limits. The novel's dark laboratories and stormy landscapes are classic Gothic elements.</p>
+      <h4 class="sub-h reveal delay-2">Key Ideas</h4>
+      <ul class="reveal delay-2">
+        <li><strong>Emotion over reason:</strong> Feeling and intuition were seen as paths to truth.</li>
+        <li><strong>The individual:</strong> The artist’s inner world and personal vision became the heart of the work.</li>
+        <li><strong>The sublime:</strong> Nature’s vastness (mountains, storms, polar ice) inspires both awe and fear.</li>
+        <li><strong>Imagination and creativity:</strong> Artists were seen as visionaries, almost creators of new worlds.</li>
+        <li><strong>Distrust of industrialisation:</strong> Many Romantics feared science and machines would cost humanity its connection to nature.</li>
+      </ul>
+
+      <h4 class="sub-h reveal delay-3">Historical Background</h4>
+      <p class="reveal delay-3">The movement was shaped by the French Revolution, the Napoleonic Wars, and the Industrial Revolution. These events brought both hope for freedom and deep disillusionment.</p>
+
+      <h4 class="sub-h reveal delay-3">Major British Romantic Poets</h4>
+      <ul class="fact-list reveal delay-3">
+        <li><span class="k">First generation</span><span class="v">William Wordsworth, Samuel Taylor Coleridge, William Blake</span></li>
+        <li><span class="k">Second generation</span><span class="v">Lord Byron, Percy Bysshe Shelley, John Keats</span></li>
+      </ul>
+
+      <h4 class="sub-h reveal delay-4">The Romantic Hero</h4>
+      <div class="note reveal delay-4">
+        <p>Often a solitary, rebellious figure who defies society or the limits of human knowledge. Both Victor Frankenstein and his creature reflect this idea in different ways.</p>
+      </div>
+
+      <h3 class="section-h reveal delay-4">Gothic Fiction</h3>
+      <p class="reveal delay-4">A tradition exploring fear, mystery, isolation, psychological tension, and transgression of natural or moral limits. The novel's dark laboratories and stormy landscapes are classic Gothic elements.</p>
 
       <div class="chip-row reveal delay-4">
         <span class="chip">Romanticism</span>
@@ -1002,7 +1115,7 @@ body.theme-light .audio-player {
     </div>
   </section>
 
-  <!-- CHAPTER 05 — CHARACTERS (CON VIDEO DE FONDO) -->
+  <!-- CHAPTER 05 — CHARACTERS -->
   <section class="chapter" id="characters" aria-labelledby="charactersTitle">
     
     <video autoplay muted loop playsinline class="bg-video">
@@ -1114,7 +1227,7 @@ body.theme-light .audio-player {
     </div>
   </section>
 
-  <!-- CHAPTER 06 — THEMES (CON VIDEO DE FONDO) -->
+  <!-- CHAPTER 06 — THEMES -->
   <section class="chapter" id="themes" aria-labelledby="themesTitle">
     
     <video autoplay muted loop playsinline class="bg-video">
@@ -1163,7 +1276,7 @@ body.theme-light .audio-player {
     </div>
   </section>
 
-  <!-- CHAPTER 07 — SETTING & CONFLICT (CON VIDEO DE FONDO) -->
+  <!-- CHAPTER 07 — SETTING & CONFLICT -->
   <section class="chapter" id="setting" aria-labelledby="settingTitle">
     
     <video autoplay muted loop playsinline class="bg-video">
@@ -1194,7 +1307,7 @@ body.theme-light .audio-player {
     </div>
   </section>
 
-  <!-- CHAPTER 08 — READ BOOK (CON VIDEO DE FONDO Y AUDIO) -->
+  <!-- CHAPTER 08 — READ BOOK -->
   <section class="chapter" id="read-book" aria-labelledby="readBookTitle">
     
     <video autoplay muted loop playsinline class="bg-video">
@@ -1657,12 +1770,11 @@ body.theme-light .audio-player {
      ========================================================================== */
   const synth = window.speechSynthesis;
   let currentUtterance = null;
-  let activePlayer = null; // El contenedor .audio-player activo
+  let activePlayer = null; 
 
   const playPauseBtns = $$('.play-pause-btn');
   const stopBtns = $$('.stop-btn');
 
-  // Función para reiniciar la interfaz de un reproductor específico
   function resetAudioUI(player) {
     if (!player) return;
     const playBtn = player.querySelector('.play-pause-btn');
@@ -1677,7 +1789,6 @@ body.theme-light .audio-player {
     stopBtn.style.display = 'none';
   }
 
-  // Detener todo el audio (usado al cambiar de página o acordeón)
   function stopAllAudio() {
     synth.cancel();
     if (activePlayer) {
@@ -1694,13 +1805,11 @@ body.theme-light .audio-player {
       const iconPause = this.querySelector('.icon-pause');
       const stopBtn = player.querySelector('.stop-btn');
 
-      // Caso 1: Se hace clic en un reproductor diferente al que está activo
       if (activePlayer !== player) {
-        stopAllAudio(); // Detiene cualquier audio previo
-        activePlayer = player; // Establece el nuevo
+        stopAllAudio(); 
+        activePlayer = player; 
       }
 
-      // Caso 2: El audio está reproduciéndose actualmente
       if (synth.speaking && !synth.paused) {
         synth.pause();
         this.classList.remove('playing');
@@ -1709,7 +1818,6 @@ body.theme-light .audio-player {
         return;
       }
 
-      // Caso 3: El audio está pausado y se va a reanudar
       if (synth.paused) {
         synth.resume();
         this.classList.add('playing');
@@ -1718,7 +1826,6 @@ body.theme-light .audio-player {
         return;
       }
 
-      // Caso 4: Iniciar nueva reproducción
       const accInner = player.closest('.acc-inner');
       const paragraphs = accInner.querySelectorAll('p');
       let textToRead = '';
@@ -1735,7 +1842,6 @@ body.theme-light .audio-player {
         activePlayer = null;
       };
 
-      // Actualizar UI
       this.classList.add('playing');
       iconPlay.style.display = 'none';
       iconPause.style.display = 'block';
@@ -1863,7 +1969,7 @@ body.theme-light .audio-player {
   function pad(n) { return n < 10 ? '0' + n : String(n); }
 
   function goTo(index, updateHash) {
-    stopAllAudio(); // Detener el audio al cambiar de página
+    stopAllAudio(); 
 
     if (index < 0) index = 0;
     if (index > totalChapters() - 1) index = totalChapters() - 1;
@@ -1971,7 +2077,6 @@ body.theme-light .audio-player {
       const isOpen = item.classList.toggle('open');
       btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       
-      // Si se cierra el acordeón, detener la lectura
       if (!isOpen) {
         stopAllAudio();
       }
