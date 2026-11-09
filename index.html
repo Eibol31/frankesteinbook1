@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frankenstein: Beyond the Creation — A Digital Literary Experience</title>
+<meta name="description" content="An interactive digital literary edition inspired by Mary Shelley's Frankenstein. Romanticism, Gothic fiction, and literary analysis.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   1. DESIGN TOKENS
+   ========================================================================== */
+:root{
+  --obsidian:#101112;
+  --charcoal:#202326;
+  --ivory:#EAE2D2;
+  --parchment:#CFC1A8;
+  --forest:#253B32;
+  --bronze:#9B8060;
+  --silver:#A9ADB0;
+
+  --bg:#0d0e0f;
+  --surface:#16181a;
+  --surface-2:#1c1f21;
+  --text:#EAE2D2;
+  --muted:#a9adb0;
+  --accent:#9B8060;
+  --rule:rgba(155,128,96,.28);
+  --rule-strong:rgba(155,128,96,.55);
+  --bar-bg:rgba(13,14,15,.86);
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  --ok:#7fae8f;
+  --no:#c07a6a;
+
+  --font-display:'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --font-ui:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  --maxw:780px;
+  --pad:clamp(20px, 5vw, 32px);
+}
+
+body.theme-light{
+  --bg:#EAE2D2;
+  --surface:#F3EDE1;
+  --surface-2:#E6DCC9;
+  --text:#1b1d1e;
+  --muted:#57574f;
+  --accent:#253B32;
+  --rule:rgba(37,59,50,.24);
+  --rule-strong:rgba(37,59,50,.5);
+  --bar-bg:rgba(234,226,210,.9);
+  --shadow:0 18px 50px rgba(37,59,50,.16);
+  --ok:#2f6b48;
+  --no:#9a3f30;
+}
+
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
+*,*::before,*::after{box-sizing:border-box;}
+
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  margin:0;
+  padding-top:68px;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(1100px 720px at 10% -10%, rgba(37,59,50,.45), transparent 62%),
+    radial-gradient(900px 620px at 108% 2%, rgba(155,128,96,.12), transparent 60%);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:1rem;
+  line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+  transition:background-color .45s ease, color .45s ease;
+  overflow-x: hidden;
+  position: relative;
+  perspective: 1000px;
+}
+
+body.theme-light{
+  background-image:
+    radial-gradient(1100px 720px at 10% -10%, rgba(37,59,50,.12), transparent 62%),
+    radial-gradient(900px 620px at 108% 2%, rgba(155,128,96,.20), transparent 60%);
+}
+
+body.no-scroll{overflow:hidden;}
+
+[hidden]{display:none !important;}
+
+h1,h2,h3,h4,h5{
+  font-family:var(--font-display);
+  font-weight:600;
+  line-height:1.16;
+  letter-spacing:.005em;
+  margin:0 0 .6em;
+  color:var(--text);
+}
+
+p{margin:0 0 1.15em;}
+em{font-style:italic;}
+strong{font-weight:700;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+ul,ol{margin:0 0 1.3em;padding-left:1.3em;}
+li{margin-bottom:.45em;}
+
+::selection{background:var(--accent);color:var(--bg);}
+
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+  border-radius:2px;
+}
+
+.skip-link{
+  position:absolute;left:-9999px;top:0;z-index:999;
+  background:var(--accent);color:var(--bg);
+  padding:.7rem 1.1rem;font-family:var(--font-ui);font-size:.8rem;
+}
+.skip-link:focus{left:12px;top:12px;}
+
+/* ==========================================================================
+   3. TOP BAR
+   ========================================================================== */
+.topbar{
+  position:fixed;
+  inset:0 0 auto 0;
+  height:68px;
+  z-index:120;
+  display:flex;
+  align-items:center;
+  gap:clamp(10px,2vw,20px);
+  padding:0 clamp(12px,3vw,28px);
+  background:var(--bar-bg);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--rule);
+}
+
+.topbar-brand{
+  flex:1 1 auto;
+  min-width:0;
+  font-family:var(--font-display);
+  font-size:clamp(.95rem,2.4vw,1.2rem);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--text);
+}
+.topbar-brand span{color:var(--accent);}
+
+.topbar-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+
+/* BOTONES CON BRILLO (SHIMMER) */
+.btn{
+  font-family:var(--font-ui);
+  font-size:.68rem;
+  font-weight:500;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  color:var(--text);
+  background:transparent;
+  border:1px solid var(--rule-strong);
+  padding:.62rem 1.05rem;
+  border-radius:2px;
+  cursor:pointer;
+  transition:background-color .25s ease, color .25s ease, border-color .25s ease, transform .2s ease;
+  white-space:nowrap;
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+.btn:hover::before { left: 200%; }
+.btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.btn:active{transform:translateY(1px);}
+
+.btn--solid{
+  background:var(--accent);
+  color:var(--bg);
+  border-color:var(--accent);
+}
+.btn--solid:hover{
+  background:transparent;
+  color:var(--accent);
+}
+
+.btn--sm{padding:.45rem .8rem;font-size:.62rem;}
+
+#musicBtn.playing {
+  color: var(--accent);
+  border-color: var(--accent);
+  animation: pulseMusic 1.5s infinite alternate;
+}
+
+@keyframes pulseMusic {
+  0% { box-shadow: 0 0 0 rgba(155, 128, 96, 0); }
+  100% { box-shadow: 0 0 10px rgba(155, 128, 96, 0.4); }
+}
+
+.progress{
+  position:absolute;
+  left:0;right:0;bottom:-1px;
+  height:2px;
+  background:transparent;
+  overflow:hidden;
+}
+.progress span{
+  display:block;
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, var(--accent), var(--parchment), var(--accent));
+  background-size: 200% 100%;
+  animation: progressGlow 2s linear infinite;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes progressGlow {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ==========================================================================
+   4. TABLE OF CONTENTS DRAWER (CON VIDEO DE FONDO)
+   ========================================================================== */
+.toc{
+  position:fixed;
+  top:0;left:0;bottom:0;
+  width:min(350px, 88vw);
+  z-index:200;
+  display:flex;
+  flex-direction:column;
+  background:var(--surface);
+  border-right:1px solid var(--rule);
+  transform:translateX(-102%);
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.toc.open{transform:none;}
+
+.toc-bg-video {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.toc-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(13,14,15,0.7) 0%, rgba(13,14,15,0.95) 100%);
+  z-index: 1;
+}
+body.theme-light .toc-overlay {
+  background: linear-gradient(180deg, rgba(234,226,210,0.7) 0%, rgba(234,226,210,0.95) 100%);
+}
+
+.toc-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 26px 24px 40px;
+}
+
+.toc-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding-bottom:1rem;
+  border-bottom:1px solid var(--rule-strong);
+  margin-bottom:1.4rem;
+}
+
+.icon-btn{
+  background:transparent;
+  border:1px solid var(--rule-strong);
+  color:var(--text);
+  width:36px;height:36px;
+  display:grid;place-items:center;
+  border-radius:2px;
+  cursor:pointer;
+  font-size:.85rem;
+  font-family:var(--font-ui);
+  transition:background-color .25s ease, color .25s ease;
+}
+.icon-btn:hover{background:var(--accent);color:var(--bg);}
+
+.toc-list{list-style:none;margin:0;padding:0;counter-reset:none;}
+.toc-list li{margin:0;}
+.toc-list a{
+  display:flex;
+  gap:.85rem;
+  align-items:baseline;
+  padding:.62rem .35rem;
+  border-bottom:1px solid transparent;
+  color:var(--text);
+  font-family:var(--font-display);
+  font-size:1.08rem;
+  line-height:1.35;
+  transition:color .2s ease, border-color .2s ease, padding-left .25s ease;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+body.theme-light .toc-list a { text-shadow: 0 1px 3px rgba(255,255,255,0.8); }
+
+.toc-list a:hover,
+.toc-list a:focus-visible{
+  color:var(--accent);
+  border-bottom-color:var(--rule);
+  padding-left:.7rem;
+  text-decoration:none;
+}
+.toc-list a.active{color:var(--accent);border-bottom-color:var(--rule-strong);}
+.toc-list .n{
+  font-family:var(--font-ui);
+  font-size:.64rem;
+  letter-spacing:.14em;
+  color:var(--accent);
+  flex:0 0 1.8rem;
+  padding-top:.15rem;
+}
+
+.toc-foot{
+  margin-top:auto;
+  padding-top:1.6rem;
+  border-top:1px solid var(--rule-strong);
+  font-size:.78rem;
+  line-height:1.7;
+  color:var(--muted);
+}
+
+.scrim{
+  position:fixed;
+  inset:0;
+  z-index:150;
+  background:rgba(5,6,7,.72);
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s ease, visibility .35s ease;
+}
+.scrim.open{opacity:1;visibility:visible;}
+
+/* ==========================================================================
+   5. ATMÓSFERA: HUMO CON PARALLAX
+   ========================================================================== */
+.smoke-container {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.smoke {
+  position: absolute;
+  width: 150vw;
+  height: 150vw;
+  background: radial-gradient(circle, rgba(155, 128, 96, 0.15) 0%, transparent 60%);
+  filter: blur(70px);
+  border-radius: 50%;
+  opacity: 0.9;
+  transition: transform 1.5s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.smoke:nth-child(1) { top: -50%; left: -20%; }
+.smoke:nth-child(2) { bottom: -50%; right: -20%; background: radial-gradient(circle, rgba(37, 59, 50, 0.2) 0%, transparent 60%); }
+.smoke:nth-child(3) { top: 20%; left: 30%; width: 100vw; height: 100vw; background: radial-gradient(circle, rgba(207, 193, 168, 0.1) 0%, transparent 50%); }
+
+body.theme-light .smoke { background: radial-gradient(circle, rgba(37, 59, 50, 0.1) 0%, transparent 60%); }
+body.theme-light .smoke:nth-child(2) { background: radial-gradient(circle, rgba(155, 128, 96, 0.15) 0%, transparent 60%); }
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
+  transition: box-shadow .45s ease;
+}
+body.theme-light .vignette { box-shadow: inset 0 0 150px rgba(37, 59, 50, 0.3); }
+
+/* ==========================================================================
+   6. CHAPTER LAYOUT & SCROLL ANIMATIONS
+   ========================================================================== */
+main{position:relative;z-index:1;}
+
+.chapter{
+  display:none;
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:clamp(34px,6vw,76px) var(--pad) 40px;
+}
+
+.chapter.is-active{
+  display:block;
+  animation: chapterIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes chapterIn{
+  0% { opacity: 0; transform: translateY(50px) scale(0.95) rotateX(5deg); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); filter: blur(0); }
+}
+
+.chapter-title, .cover-title {
+  animation: titleFloat 4s ease-in-out infinite alternate, flicker 3s infinite alternate;
+}
+
+@keyframes titleFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 15px rgba(155, 128, 96, 0.6), 0 0 30px rgba(155, 128, 96, 0.2); opacity: 1; }
+  20%, 24%, 55% { text-shadow: none; opacity: 0.8; }
+}
+
+body.theme-light .chapter-title, 
+body.theme-light .cover-title {
+  animation: titleFloat 4s ease-in-out infinite alternate, flickerLight 3s infinite alternate;
+}
+@keyframes flickerLight {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 15px rgba(37, 59, 50, 0.3); opacity: 1; }
+  20%, 24%, 55% { text-shadow: none; opacity: 0.8; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.reveal-left { opacity: 0; transform: translateX(-50px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal-right { opacity: 0; transform: translateX(50px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal-scale { opacity: 0; transform: scale(0.9); transition: opacity 0.8s ease, transform 0.8s ease; }
+
+.reveal.is-visible,
+.reveal-left.is-visible,
+.reveal-right.is-visible,
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: translate(0) scale(1);
+}
+
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
+
+.label{
+  display:block;
+  font-family:var(--font-ui);
+  font-size:.63rem;
+  font-weight:500;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:1.1rem;
+}
+
+.chapter-title{ font-size:clamp(1.9rem,5.4vw,3rem); margin-bottom:.35em; }
+.chapter-sub{ font-family:var(--font-display); font-style:italic; font-size:clamp(1rem,2.4vw,1.25rem); color:var(--muted); margin-bottom:2rem; line-height:1.5; }
+
+.lead::first-letter{
+  float:left; font-family:var(--font-display); font-size:4.1em; line-height:.8; padding:.06em .12em 0 0; color:var(--accent); font-weight:600;
+}
+
+h3.section-h{
+  font-size:clamp(1.4rem,3.4vw,1.85rem); margin-top:2.6rem; padding-bottom:.4rem; border-bottom:1px solid var(--rule);
+}
+
+/* ==========================================================================
+   7. IMAGE STYLES & 3D TILT
+   ========================================================================== */
+.figure-img {
+  margin: 2.4rem 0; padding: 0; border: 1px solid var(--rule-strong); border-radius: 2px; background-color: var(--surface); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transform-style: preserve-3d;
+}
+
+.figure-img img {
+  display: block; width: 100%; height: auto; object-fit: cover; transition: transform 0.5s ease;
+}
+
+.figure-img:hover img { transform: scale(1.05); }
+
+.figure-img figcaption {
+  padding: .85rem 1.1rem; border-top: 1px solid var(--rule); font-family: var(--font-ui); font-size: .72rem; letter-spacing: .05em; color: var(--muted); text-align: center; background: var(--surface); transform: translateZ(20px);
+}
+
+/* ==========================================================================
+   8. GENERIC COMPONENTS
+   ========================================================================== */
+.note{
+  border-left:2px solid var(--accent); background:var(--surface-2); padding:1rem 1.15rem; margin:1.6rem 0; font-size:.9rem; line-height:1.75; color:var(--muted); border-radius:0 2px 2px 0;
+}
+.note strong{color:var(--text);}
+
+.fact-list{ list-style:none; margin:1.6rem 0; padding:0; border-top:1px solid var(--rule); }
+.fact-list li{ display:flex; flex-wrap:wrap; gap:.3rem 1rem; justify-content:space-between; padding:.72rem 0; margin:0; border-bottom:1px solid var(--rule); font-size:.92rem; }
+.fact-list .k{ font-family:var(--font-ui); font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); padding-top:.28rem; flex:0 0 auto; }
+.fact-list .v{ flex:1 1 55%; text-align:right; color:var(--text); line-height:1.6; }
+@media(max-width:520px){ .fact-list .v{text-align:left;flex-basis:100%;} }
+
+.chip-row{ display:flex; flex-wrap:wrap; gap:.5rem; margin:1.2rem 0 1.6rem; }
+.chip{ font-family:var(--font-ui); font-size:.66rem; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); border:1px solid var(--rule-strong); border-radius:999px; padding:.35rem .85rem; }
+
+/* ==========================================================================
+   9. COVER
+   ========================================================================== */
+#cover{ max-width:1000px; padding-top:clamp(20px,4vw,52px); text-align:center; }
+
+.cover-frame{
+  border:1px solid var(--rule-strong); padding:clamp(24px,5vw,58px) clamp(18px,4vw,48px); position:relative; overflow:hidden; background-color:var(--surface);
+}
+
+.bg-video {
+  position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); z-index: 0; object-fit: cover; opacity: 0.45; pointer-events: none; animation: slowZoom 20s infinite alternate linear;
+}
+
+@keyframes slowZoom { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.15); } }
+
+.video-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, transparent 0%, rgba(13,14,15,0.85) 100%); z-index: 1; }
+body.theme-light .video-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(234,226,210,0.9) 100%); }
+
+.cover-content { position: relative; z-index: 2; }
+
+.cover-eyebrow{ font-family:var(--font-ui); font-size:.63rem; letter-spacing:.34em; text-transform:uppercase; color:var(--accent); margin-bottom:1.6rem; }
+.cover-title{ font-size:clamp(2.2rem,8.5vw,4.4rem); line-height:1.02; letter-spacing:.02em; margin:0 0 .3em; text-transform:uppercase; }
+.cover-title .beyond{ display:block; font-size:.42em; letter-spacing:.22em; color:var(--accent); margin-top:.55em; font-weight:400; }
+.cover-sub{ font-family:var(--font-display); font-style:italic; font-size:clamp(1rem,2.8vw,1.4rem); color:var(--muted); margin-bottom:2rem; }
+.cover-author{ font-family:var(--font-display); font-size:clamp(1.05rem,2.8vw,1.35rem); letter-spacing:.06em; margin-bottom:.2rem; }
+.cover-author-meta{ font-family:var(--font-ui); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:2rem; }
+
+.cover-meta{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin:2rem 0 2.2rem; }
+@media(min-width:640px){ .cover-meta{grid-template-columns:repeat(4,1fr);} }
+.cover-meta div{ background:rgba(22, 24, 26, 0.85); padding:.95rem .8rem; font-family:var(--font-ui); font-size:.68rem; letter-spacing:.1em; line-height:1.6; color:var(--muted); text-transform:uppercase; }
+body.theme-light .cover-meta div { background:rgba(243, 237, 225, 0.85); }
+.cover-meta div b{ display:block; color:var(--text); font-size:.76rem; letter-spacing:.06em; margin-top:.3rem; text-transform:none; font-weight:500; font-family:var(--font-display); font-size:1rem; }
+
+.cover-authors {
+  margin-top: 2.5rem;
+  margin-bottom: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--rule-strong);
+}
+.author-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.63rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+}
+.author-names {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ==========================================================================
+   10. SECCIONES CON FONDOS
+   ========================================================================== */
+#work, #read-book, #movement, #setting, #characters, #themes { position: relative; overflow: hidden; }
+
+#work .bg-video { opacity: 0.15; animation: slowZoomWork 25s infinite alternate linear; }
+@keyframes slowZoomWork { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.05); } }
+#work .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.4) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #work .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.4) 50%, rgba(234,226,210,0.95) 100%); }
+#work .chapter-content { position: relative; z-index: 2; }
+
+.bg-image-container { position: absolute; inset: -5%; z-index: 0; transition: transform 0.2s ease-out; }
+#movement .bg-interactive-image { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0.45; animation: slowBreath 20s infinite alternate ease-in-out; filter: sepia(30%) contrast(120%) brightness(0.7); }
+@keyframes slowBreath { 0% { transform: scale(1) rotate(0deg); } 100% { transform: scale(1.1) rotate(1deg); } }
+#movement .image-overlay { position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 0%, rgba(13,14,15,0.9) 100%), linear-gradient(180deg, rgba(13,14,15,0.9) 0%, transparent 20%, transparent 80%, rgba(13,14,15,0.9) 100%); z-index: 1; }
+body.theme-light #movement .image-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(234,226,210,0.9) 100%), linear-gradient(180deg, rgba(234,226,210,0.9) 0%, transparent 20%, transparent 80%, rgba(234,226,210,0.9) 100%); }
+#movement .chapter-content { position: relative; z-index: 2; }
+
+#characters .bg-video { opacity: 0.25; animation: slowZoomCharacters 35s infinite alternate linear; }
+@keyframes slowZoomCharacters { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
+#characters .video-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(13,14,15,0.9) 100%); z-index: 1; }
+body.theme-light #characters .video-overlay { background: radial-gradient(circle at center, transparent 0%, rgba(234,226,210,0.9) 100%); }
+#characters .chapter-content { position: relative; z-index: 2; }
+
+#themes .bg-video { opacity: 0.15; animation: slowZoomThemes 30s infinite alternate linear; }
+@keyframes slowZoomThemes { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.08); } }
+#themes .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.85) 0%, rgba(13,14,15,0.5) 50%, rgba(13,14,15,0.85) 100%); z-index: 1; }
+body.theme-light #themes .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.85) 0%, rgba(234,226,210,0.5) 50%, rgba(234,226,210,0.85) 100%); }
+#themes .chapter-content { position: relative; z-index: 2; }
+
+#setting .bg-video { opacity: 0.20; animation: slowZoomSetting 30s infinite alternate linear; }
+@keyframes slowZoomSetting { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.1); } }
+#setting .video-overlay { background: radial-gradient(circle at center, rgba(13,14,15,0.2) 0%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #setting .video-overlay { background: radial-gradient(circle at center, rgba(234,226,210,0.2) 0%, rgba(234,226,210,0.95) 100%); }
+#setting .chapter-content { position: relative; z-index: 2; }
+
+#read-book .bg-video { opacity: 0.35; animation: slowZoomRead 30s infinite alternate linear; }
+@keyframes slowZoomRead { 0% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) scale(1.08); } }
+#read-book .video-overlay { background: linear-gradient(180deg, rgba(13,14,15,0.95) 0%, rgba(13,14,15,0.65) 50%, rgba(13,14,15,0.95) 100%); z-index: 1; }
+body.theme-light #read-book .video-overlay { background: linear-gradient(180deg, rgba(234,226,210,0.95) 0%, rgba(234,226,210,0.65) 50%, rgba(234,226,210,0.95) 100%); }
+#read-book .chapter-content { position: relative; z-index: 2; }
+
+/* ==========================================================================
+   11. ACCORDION & AUDIO CONTROLS
+   ========================================================================== */
+.acc{ border-bottom:1px solid var(--rule); }
+.acc:first-of-type{border-top:1px solid var(--rule);}
+
+.acc-btn{
+  width:100%; display:flex; align-items:center; gap:1rem; background:none; border:0; color:var(--text); text-align:left; cursor:pointer; padding:1.15rem .2rem; font-family:var(--font-display); font-size:clamp(1.15rem,3vw,1.45rem); line-height:1.3; transition:color .2s ease, padding-left .25s ease;
+}
+.acc-btn:hover{color:var(--accent);padding-left:.6rem;}
+.acc-btn .idx{ font-family:var(--font-ui); font-size:.64rem; letter-spacing:.14em; color:var(--accent); flex:0 0 1.6rem; }
+.acc-btn .txt{flex:1 1 auto;}
+.acc-btn .sign{ font-family:var(--font-ui); color:var(--accent); font-size:1rem; flex:0 0 auto; transition:transform .4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.acc.open .acc-btn .sign{transform:rotate(135deg);}
+.acc.open .acc-btn{color:var(--accent);}
+
+.acc-panel{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.acc.open .acc-panel{grid-template-rows:1fr;}
+.acc-panel > div{overflow:hidden;}
+.acc-inner{ padding:0 .2rem 1.6rem 2.6rem; position: relative; }
+@media(max-width:560px){ .acc-inner{padding-left:.2rem;} }
+.acc-inner p{font-size:.94rem;line-height:1.8;}
+.acc-inner .reflect{ margin-top:1rem; padding:.85rem 1rem; border-left:2px solid var(--accent); background:var(--surface-2); font-style:italic; font-size:.88rem; color:var(--muted); border-radius:0 2px 2px 0; }
+
+/* NUEVO DISEÑO DEL REPRODUCTOR */
+.audio-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  margin-top: -0.5rem;
+}
+
+.audio-player {
+  display: flex;
+  align-items: center;
+  background: rgba(22, 24, 26, 0.6);
+  border: 1px solid var(--rule-strong);
+  padding: 4px;
+  border-radius: 24px;
+  backdrop-filter: blur(4px);
+}
+body.theme-light .audio-player {
+  background: rgba(243, 237, 225, 0.6);
+}
+
+.audio-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.audio-btn:hover {
+  background: var(--rule);
+  color: var(--text);
+}
+
+.audio-btn.playing {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.audio-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.stop-btn {
+  width: 28px;
+  height: 28px;
+  margin-left: 4px;
+  border-left: 1px solid var(--rule-strong);
+  border-radius: 0 16px 16px 0;
+}
+.stop-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+
+/* ==========================================================================
+   12. CHARACTER CARDS
+   ========================================================================== */
+.char-grid{ display:grid; gap:1rem; grid-template-columns:1fr; margin:2rem 0; }
+@media(min-width:640px){ .char-grid{grid-template-columns:1fr 1fr;} }
+
+.char-card{
+  display:flex; flex-direction:column; gap:.5rem; text-align:left; background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:1.5rem 1.4rem; cursor:pointer; color:inherit; font-family:inherit; position:relative; overflow:hidden;
+  transform-style: preserve-3d;
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+.char-card::after{ content:''; position:absolute; inset:auto 0 0 0; height:2px; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .4s ease; }
+.char-card:hover, .char-card:focus-visible{ border-color:var(--rule-strong); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+.char-card:hover::after, .char-card:focus-visible::after{transform:scaleX(1);}
+
+.char-card .role, .char-card .name, .char-card .hint { transform: translateZ(30px); }
+.char-card .role{ font-family:var(--font-ui); font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); }
+.char-card .name{ font-family:var(--font-display); font-size:1.5rem; line-height:1.2; color:var(--text); }
+.char-card .hint{ font-family:var(--font-ui); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-top:auto; padding-top:.8rem; }
+
+/* ==========================================================================
+   13. MODAL
+   ========================================================================== */
+.modal{ position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:clamp(12px,4vw,32px); }
+.modal.open{display:flex;}
+
+.modal-backdrop{ position:absolute; inset:0; background:rgba(5,6,7,.82); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); animation:fadeIn .3s ease both; }
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal-box{ position:relative; width:100%; max-width:660px; max-height:88vh; overflow-y:auto; background:var(--surface); border:1px solid var(--rule-strong); border-radius:3px; padding:clamp(24px,5vw,46px); box-shadow:var(--shadow); animation:modalIn .5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes modalIn{ from{opacity:0;transform:translateY(40px) scale(.95);} to{opacity:1;transform:none;} }
+
+.modal-close{ position:absolute; top:14px;right:14px; width:38px;height:38px; display:grid;place-items:center; background:transparent; border:1px solid var(--rule-strong); color:var(--text); border-radius:2px; cursor:pointer; font-family:var(--font-ui); font-size:.9rem; transition:background-color .25s ease, color .25s ease; }
+.modal-close:hover{background:var(--accent);color:var(--bg);}
+
+.modal-box h3{ font-size:clamp(1.6rem,4.5vw,2.2rem); margin-bottom:.2em; padding-right:2.6rem; }
+.modal-box .role-line{ font-family:var(--font-ui); font-size:.64rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:1.6rem; display:block; }
+.modal-box h4{ font-family:var(--font-ui); font-size:.64rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin:1.5rem 0 .4rem; font-weight:600; }
+.modal-box p{font-size:.92rem;line-height:1.8;}
+.modal-box ul{font-size:.9rem;line-height:1.75;padding-left:1.15rem;}
+
+/* ==========================================================================
+   14. CHAPTER NAVIGATION
+   ========================================================================== */
+.chapter-nav{
+  max-width:var(--maxw); margin:0 auto; padding:1.6rem var(--pad) 4rem; display:flex; align-items:center; justify-content:space-between; gap:.8rem; border-top:1px solid var(--rule);
+}
+.nav-pos{ font-family:var(--font-ui); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); text-align:center; flex:1 1 auto; }
+.chapter-nav .btn{flex:0 0 auto;}
+.chapter-nav .btn:disabled{ opacity:.32; cursor:not-allowed; }
+.chapter-nav .btn:disabled:hover{ background:transparent; color:var(--text); border-color:var(--rule-strong); }
+.chapter-nav .btn:disabled::before{ display: none; }
+
+/* ==========================================================================
+   15. BACK TO TOP
+   ========================================================================== */
+.to-top{
+  position:fixed; right:clamp(14px,3vw,26px); bottom:clamp(14px,3vw,26px); z-index:110; width:44px;height:44px; display:grid;place-items:center; background:var(--surface); border:1px solid var(--rule-strong); color:var(--accent); border-radius:2px; cursor:pointer; font-size:.9rem; opacity:0; visibility:hidden; transform:translateY(10px); transition:opacity .3s ease, visibility .3s ease, transform .3s ease, background-color .25s ease, color .25s ease;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none;}
+.to-top:hover{background:var(--accent);color:var(--bg);}
+
+/* ==========================================================================
+   16. RESPONSIVE & ACCESSIBILITY
+   ========================================================================== */
+@media(max-width:700px){
+  body{padding-top:62px;}
+  .topbar{height:62px;}
+  .topbar-brand{font-size:.82rem;letter-spacing:.04em;}
+  .btn{padding:.55rem .8rem;font-size:.6rem;letter-spacing:.12em;}
+}
+
+@media(max-width:460px){
+  .topbar-brand span.long{display:none;}
+  .chapter-nav{flex-wrap:wrap;justify-content:center;}
+  .nav-pos{order:-1;flex-basis:100%;margin-bottom:.4rem;}
+  .chapter-nav .btn{flex:1 1 auto;text-align:center;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{
+    animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important;
+  }
+  .reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1; transform: none; }
+  .smoke { animation: none; }
+  .btn::before { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- VIDEO DE PINTEREST OCULTO VISUALMENTE (SOLO AUDIO) -->
+<video id="bgMusic" loop muted playsinline 
+       style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
+  <source src="https://v1.pinimg.com/videos/mc/720p/26/a2/8c/26a28c372210cc1db6573877181fd725.mp4" type="video/mp4">
+</video>
+
+<a class="skip-link" href="#book">Skip to content</a>
+
+<!-- CONTENEDOR DE HUMO -->
+<div class="smoke-container" aria-hidden="true">
+  <div class="smoke" id="smoke1"></div>
+  <div class="smoke" id="smoke2"></div>
+  <div class="smoke" id="smoke3"></div>
+</div>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="topbar">
+  <button class="btn btn--sm" id="menuBtn" aria-expanded="false" aria-controls="toc">☰ Contents</button>
+  <div class="topbar-brand">Frankenstein<span>:</span> <span class="long">Beyond the Creation</span></div>
+  <div class="topbar-actions">
+    <button class="btn btn--sm" id="musicBtn" aria-label="Toggle background music">🔇</button>
+    <button class="btn btn--sm" id="themeBtn" aria-label="Switch to light reading theme">Light</button>
+  </div>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+</header>
+
+<!-- MENÚ CON VIDEO DE FONDO -->
+<nav class="toc" id="toc" aria-label="Table of contents" aria-hidden="true">
+  
+  <video autoplay muted loop playsinline class="toc-bg-video">
+    <source src="https://v1.pinimg.com/videos/mc/720p/4d/ce/55/4dce5548c241d3e992069fe158b30394.mp4" type="video/mp4">
+  </video>
+  <div class="toc-overlay"></div>
+
+  <div class="toc-inner">
+    <div class="toc-head">
+      <span class="label" style="margin:0">Contents</span>
+      <button class="icon-btn" id="tocClose" aria-label="Close table of contents">✕</button>
+    </div>
+
+    <ol class="toc-list">
+      <li><a href="#cover" data-target="cover"><span class="n">01</span> Frankenstein</a></li>
+      <li><a href="#author" data-target="author"><span class="n">02</span> The Author</a></li>
+      <li><a href="#work" data-target="work"><span class="n">03</span> The Work</a></li>
+      <li><a href="#movement" data-target="movement"><span class="n">04</span> Literary Movement</a></li>
+      <li><a href="#characters" data-target="characters"><span class="n">05</span> Characters</a></li>
+      <li><a href="#themes" data-target="themes"><span class="n">06</span> Themes</a></li>
+      <li><a href="#setting" data-target="setting"><span class="n">07</span> Setting &amp; Conflict</a></li>
+      <li><a href="#read-book" data-target="read-book"><span class="n">08</span> Read Book</a></li>
+    </ol>
+
+    <div class="toc-foot">
+      <p>An interactive digital literary product inspired by Mary Wollstonecraft Shelley's <em>Frankenstein</em> (1818).</p>
+      <p>Romanticism · Gothic Fiction</p>
+    </div>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+
+<main id="book">
+
+  <!-- CHAPTER 01 — COVER -->
+  <section class="chapter" id="cover" aria-labelledby="coverTitle">
+    <div class="cover-frame">
+      
+      <video autoplay muted loop playsinline class="bg-video">
+        <source src="https://cdn.pixabay.com/video/2023/06/10/166697-835224043_large.mp4" type="video/mp4">
+      </video>
+      
+      <div class="video-overlay"></div>
+
+      <div class="cover-content">
+        <p class="cover-eyebrow">Literature in the Digital Age · Interactive eBook</p>
+
+        <h1 class="cover-title" id="coverTitle">
+          Frankenstein
+          <span class="beyond">Beyond the Creation</span>
+        </h1>
+
+        <p class="cover-sub">A Meaningful Digital Experience for Contemporary Readers</p>
+
+        <p class="cover-author">Mary Wollstonecraft Shelley</p>
+        <p class="cover-author-meta">First published in 1818 · United Kingdom</p>
+
+        <figure class="figure-img tilt-target">
+          <img src="https://i.pinimg.com/736x/20/99/5d/20995d4d7ad7e11e2046d76481a34eb6.jpg" alt="Gothic Frankenstein Illustration">
+          <figcaption>Cover illustration — <em>Frankenstein: Beyond the Creation</em>.</figcaption>
+        </figure>
+
+        <div class="cover-meta">
+          <div>Published<b>1818</b></div>
+          <div>Literary Movement<b>Romanticism</b></div>
+          <div>Literary Tradition<b>Gothic Fiction</b></div>
+          <div>Digital Format<b>Interactive eBook</b></div>
+        </div>
+
+        <div class="cover-authors reveal delay-3">
+          <span class="author-label">Digital Edition Created By</span>
+          <p class="author-names">
+            Nathalia Vera Alba · Carolina Castillo Montero<br>
+            Ana María Sánchez Prada · María Paz Leiva
+          </p>
+        </div>
+
+        <button class="btn btn--solid" id="beginBtn" style="padding:.95rem 2.4rem;font-size:.72rem;">Begin Experience</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 02 — THE AUTHOR -->
+  <section class="chapter" id="author" aria-labelledby="authorTitle">
+    <span class="label reveal">Chapter 02 · Literary Inspiration</span>
+    <h2 class="chapter-title reveal delay-1" id="authorTitle">The Author: Mary Shelley</h2>
+    <p class="chapter-sub reveal delay-1">The mind behind the modern Prometheus</p>
+
+    <figure class="figure-img reveal-scale delay-2 tilt-target">
+      <img src="https://espacio.fundaciontelefonica.com/wp-content/uploads/2016/06/mary_shelley-1100x550.jpg" alt="Mary Wollstonecraft Shelley Portrait">
+      <figcaption>Mary Wollstonecraft Shelley (1797–1851).</figcaption>
+    </figure>
+
+    <p class="lead reveal delay-2">Mary Shelley was a British novelist, essayist and short-story writer. Born in 1797 to two radical thinkers (William Godwin and Mary Wollstonecraft), she grew up surrounded by books and political debate.</p>
+    
+    <p class="reveal delay-3">In 1816, during a stay near Lake Geneva with Lord Byron and Percy Bysshe Shelley, she conceived the idea for <em>Frankenstein</em> during a ghost-story writing challenge. What started as a terrifying tale became a profound reflection on life, death, and creation.</p>
+  </section>
+
+  <!-- CHAPTER 03 — THE WORK -->
+  <section class="chapter" id="work" aria-labelledby="workTitle">
+    
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://cdn.pixabay.com/video/2024/03/20/204835-925552445_large.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 03 · Literary Inspiration</span>
+      <h2 class="chapter-title reveal delay-1" id="workTitle">The Work: Frankenstein</h2>
+      <p class="chapter-sub reveal delay-1">A novel that defies the boundaries of life</p>
+
+      <figure class="figure-img reveal-scale delay-2 tilt-target">
+        <img src="https://images.cdn2.buscalibre.com/fit-in/660x660/0b/34/0b34f7c5e7987f434818bd8a5de54084.jpg" alt="Frankenstein Book Cover">
+        <figcaption>Classic edition of <em>Frankenstein; or, The Modern Prometheus</em>.</figcaption>
+      </figure>
+
+      <p class="lead reveal delay-2">Published anonymously in 1818, <em>Frankenstein; or, The Modern Prometheus</em> is a novel that blends Gothic horror with philosophical inquiry, exploring the boundaries of life and death.</p>
+
+      <ul class="fact-list reveal delay-3">
+        <li><span class="k">Title</span><span class="v"><em>Frankenstein; or, The Modern Prometheus</em></span></li>
+        <li><span class="k">First Publication</span><span class="v">1818 (London)</span></li>
+        <li><span class="k">Literary Form</span><span class="v">Novel</span></li>
+        <li><span class="k">Narrative Structure</span><span class="v">Frame narrative with multiple first-person narrators</span></li>
+      </ul>
+
+      <div class="note reveal delay-4">
+        <strong>Why it matters:</strong> <em>Frankenstein</em> is widely considered one of the earliest examples of science fiction, asking timeless questions about the dangers of unchecked scientific ambition.
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CHAPTER 04 — THE LITERARY MOVEMENT (CON FONDO INTERACTIVO) -->
+  <section class="chapter" id="movement" aria-labelledby="movementTitle">
+    
+    <div class="bg-image-container" id="movementBgContainer">
+      <img class="bg-interactive-image" src="https://i.pinimg.com/1200x/88/d2/29/88d22979e2e703264b4a9922509af785.jpg" alt="Literary Movement Background">
+    </div>
+    <div class="image-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 04 · Literary Inspiration</span>
+      <h2 class="chapter-title reveal delay-1" id="movementTitle">The Literary Movement</h2>
+      <p class="chapter-sub reveal delay-1">Romanticism and Gothic Fiction</p>
+
+      <p class="lead reveal delay-2"><em>Frankenstein</em> belongs to two overlapping literary currents that shaped the 19th century:</p>
+
+      <h3 class="section-h reveal delay-2">Romanticism</h3>
+      <p class="reveal delay-2">A movement emphasising emotion, imagination, individual experience, and the sublime power of nature. Mary Shelley was deeply connected to the Romantic poets of her time.</p>
+
+      <h3 class="section-h reveal delay-3">Gothic Fiction</h3>
+      <p class="reveal delay-3">A tradition exploring fear, mystery, isolation, psychological tension, and transgression of natural or moral limits. The novel's dark laboratories and stormy landscapes are classic Gothic elements.</p>
+
+      <div class="chip-row reveal delay-4">
+        <span class="chip">Romanticism</span>
+        <span class="chip">Gothic Fiction</span>
+        <span class="chip">Early Science Fiction</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 05 — CHARACTERS (CON VIDEO DE FONDO) -->
+  <section class="chapter" id="characters" aria-labelledby="charactersTitle">
+    
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://cdn.pixabay.com/video/2026/09/22/378013_large.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 05 · Key Elements</span>
+      <h2 class="chapter-title reveal delay-1" id="charactersTitle">Characters</h2>
+      <p class="chapter-sub reveal delay-1">The figures behind the creation</p>
+
+      <p class="lead reveal delay-2">The novel is driven by a small cast of complex characters. The relationship between the creator and his creation is the engine of the entire tragedy.</p>
+
+      <div class="char-grid">
+        <!-- MAIN CHARACTERS -->
+        <button class="char-card reveal delay-2 tilt-target" data-char="victor">
+          <span class="role">The Creator</span>
+          <span class="name">Victor Frankenstein</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-3 tilt-target" data-char="creature">
+          <span class="role">The Creation</span>
+          <span class="name">The Creature</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-3 tilt-target" data-char="walton">
+          <span class="role">The Frame Narrator</span>
+          <span class="name">Robert Walton</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-4 tilt-target" data-char="elizabeth">
+          <span class="role">The Emotional Centre</span>
+          <span class="name">Elizabeth Lavenza</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-4 tilt-target" data-char="henry">
+          <span class="role">The Best Friend</span>
+          <span class="name">Henry Clerval</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <!-- SUPPORTING CHARACTERS -->
+        <button class="char-card reveal delay-2 tilt-target" data-char="alphonse">
+          <span class="role">The Father</span>
+          <span class="name">Alphonse Frankenstein</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-3 tilt-target" data-char="caroline">
+          <span class="role">The Mother</span>
+          <span class="name">Caroline Beaufort</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-3 tilt-target" data-char="justine">
+          <span class="role">The Tragic Servant</span>
+          <span class="name">Justine Moritz</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-4 tilt-target" data-char="william">
+          <span class="role">The First Victim</span>
+          <span class="name">William Frankenstein</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-4 tilt-target" data-char="ernest">
+          <span class="role">The Younger Brother</span>
+          <span class="name">Ernest Frankenstein</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <!-- SECONDARY CHARACTERS -->
+        <button class="char-card reveal delay-2 tilt-target" data-char="waldman">
+          <span class="role">The Mentor</span>
+          <span class="name">Professor Waldman</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-3 tilt-target" data-char="krempe">
+          <span class="role">The Critic</span>
+          <span class="name">Professor Krempe</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-3 tilt-target" data-char="delacey">
+          <span class="role">The Cottagers</span>
+          <span class="name">The De Lacey Family</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-4 tilt-target" data-char="safie">
+          <span class="role">The Eastern Visitor</span>
+          <span class="name">Safie</span>
+          <span class="hint">Open profile →</span>
+        </button>
+
+        <button class="char-card reveal delay-4 tilt-target" data-char="kirwin">
+          <span class="role">The Magistrate</span>
+          <span class="name">Mr. Kirwin</span>
+          <span class="hint">Open profile →</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 06 — THEMES (CON VIDEO DE FONDO) -->
+  <section class="chapter" id="themes" aria-labelledby="themesTitle">
+    
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://cdn.pixabay.com/video/2026/10/21/383850_large.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 06 · Key Elements</span>
+      <h2 class="chapter-title reveal delay-1" id="themesTitle">Themes</h2>
+      <p class="chapter-sub reveal delay-1">The questions that define humanity</p>
+
+      <p class="lead reveal delay-2">The themes of <em>Frankenstein</em> are interconnected questions about knowledge, responsibility and what it means to be human. Select a theme to explore its explanation and contemporary relevance.</p>
+
+      <div class="acc reveal delay-2" id="themesAcc">
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">01</span><span class="txt">Scientific Ambition</span><span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+            <p>Victor's curiosity becomes an obsession that isolates him. He pursues discovery as an end in itself, without asking what he will do once the discovery is made.</p>
+            <div class="reflect">Reflection: Can scientific ambition justify every action?</div>
+          </div></div></div>
+        </div>
+
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">02</span><span class="txt">Responsibility and Ethics</span><span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+            <p>Victor's abandonment of his creation raises questions about the duties of creators toward what they bring into existence. The tragedy begins the moment the creator walks away.</p>
+            <div class="reflect">Reflection: What responsibilities do creators have toward their creations?</div>
+          </div></div></div>
+        </div>
+
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">03</span><span class="txt">Isolation and Loneliness</span><span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+            <p>The Creature experiences rejection and exclusion, demonstrating the emotional consequences of being denied acceptance. Victor isolates himself through ambition and secrecy.</p>
+            <div class="reflect">Reflection: Is the Creature naturally evil, or is he shaped by rejection?</div>
+          </div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 07 — SETTING & CONFLICT (CON VIDEO DE FONDO) -->
+  <section class="chapter" id="setting" aria-labelledby="settingTitle">
+    
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://cdn.pixabay.com/video/2026/10/22/384366_large.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 07 · Key Elements</span>
+      <h2 class="chapter-title reveal delay-1" id="settingTitle">Setting &amp; Conflict</h2>
+      <p class="chapter-sub reveal delay-1">The world and the struggle</p>
+
+      <p class="lead reveal delay-2">The environment and the central struggle shape the gothic atmosphere of the novel and drive its philosophical inquiry.</p>
+
+      <h3 class="section-h reveal delay-2">Setting</h3>
+      <p class="reveal delay-2">The novel spans <strong>Geneva, the Swiss Alps, Germany, England, Scotland, and the Arctic</strong>. The sublime landscapes (mountains, glaciers, ice) reflect the Romantic concept of nature as beautiful, powerful, and overwhelming.</p>
+
+      <h3 class="section-h reveal delay-3">Central Conflict</h3>
+      <p class="reveal delay-3">The novel is driven by two primary conflicts:</p>
+      <ul class="reveal delay-3">
+        <li><strong>External Conflict:</strong> The struggle between Victor Frankenstein and his creation. The Creature demands recognition and companionship, while Victor seeks to escape or destroy what he has made.</li>
+        <li><strong>Internal Conflict:</strong> Victor's internal struggle between his scientific ambition and his moral responsibility.</li>
+      </ul>
+
+      <div class="note reveal delay-4">
+        <strong>Analysis:</strong> The conflict is not a simple battle between good and evil. It is a conflict between creation and abandonment, knowledge and ethics, and ultimately, between what society sees and what it refuses to see.
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 08 — READ BOOK (CON VIDEO DE FONDO Y AUDIO) -->
+  <section class="chapter" id="read-book" aria-labelledby="readBookTitle">
+    
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://cdn.pixabay.com/video/2015/08/11/305-135918495_large.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="chapter-content">
+      <span class="label reveal">Chapter 08 · Full Text</span>
+      <h2 class="chapter-title reveal delay-1" id="readBookTitle">Read Book</h2>
+      <p class="chapter-sub reveal delay-1">Frankenstein; or, The Modern Prometheus</p>
+
+      <div class="note reveal delay-2">
+        <em>About the book.</em> The novel is built as a story within a story: Walton's letters frame Victor Frankenstein's narrative, and inside Victor's narrative is the Creature's own account. This reading guide follows the structure of the edition provided (4 letters and 24 chapters), grouped into the book's three volumes, with a short overview of each part and a summary of each letter or chapter.
+      </div>
+
+      <h3 class="section-h reveal delay-2">Prologue: Walton's Letters</h3>
+      <div class="acc reveal delay-2">
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">L1-4</span>
+            <span class="txt">Letters 1-4: The Explorer and the Stranger</span>
+            <span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+            
+            <!-- REPRODUCTOR DE AUDIO -->
+            <div class="audio-wrap">
+              <div class="audio-player">
+                <button class="audio-btn play-pause-btn" data-lang="en" aria-label="Play or Pause">
+                  <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="audio-btn stop-btn" aria-label="Stop" style="display:none;">
+                  <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <p><strong>In brief:</strong> An explorer writing to his sister meets a dying stranger on the ice and persuades him to tell his story.</p>
+            <p><strong>Letter 1:</strong> Captain Robert Walton writes to his sister, Margaret Saville, in England to say he has arrived safely in Russia and his plan to sail toward the North Pole is under way. He hopes to discover the secret of the compass needle and open a new sea route, but above all he wants to see a land no one has reached.</p>
+            <p><strong>Letter 2:</strong> Walton reports he has hired a vessel and is gathering sailors. He confesses he has one unsatisfied need: a friend. He longs for a companion of cultivated mind to approve or correct his plans.</p>
+            <p><strong>Letter 3:</strong> A short, hurried letter. Walton reports he is safe, well advanced on his voyage, and in good spirits. He declares that nothing can stop the determined heart and resolved will of man.</p>
+            <p><strong>Letter 4 (The stranger on the ice):</strong> On July 31st, the ship was almost surrounded by ice. The crew found a sledge with a single man, nearly dead from exposure. Before coming aboard, the stranger asked where the ship was bound. The crew revived him, and the stranger became the friend Walton wished for. The stranger warns him about the "intoxicating draught" of ambition and agrees to tell Walton his life, which Walton resolves to write down.</p>
+          </div></div></div>
+        </div>
+      </div>
+
+      <h3 class="section-h reveal delay-3">Part I: Victor's Story — Creation (Chapters 1-7)</h3>
+      <div class="acc reveal delay-3">
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">P1</span>
+            <span class="txt">Chapters 1-7: The Spark of Life and the First Death</span>
+            <span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+            
+            <!-- REPRODUCTOR DE AUDIO -->
+            <div class="audio-wrap">
+              <div class="audio-player">
+                <button class="audio-btn play-pause-btn" data-lang="en" aria-label="Play or Pause">
+                  <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="audio-btn stop-btn" aria-label="Stop" style="display:none;">
+                  <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <p><strong>In brief:</strong> Victor's happy childhood in Geneva gives way to obsessive study at Ingolstadt, where he brings a creature to life and is immediately horrified by it.</p>
+            <p><strong>Chapter 4 - The secret of life:</strong> Victor throws himself into chemistry. After two years he decides to find the cause of life itself. He studies anatomy and decay, spending days in vaults until he discovers how to bestow animation on lifeless matter. He decides to make his being gigantic, about eight feet tall.</p>
+            <p><strong>Chapter 5 - The creation:</strong> On a dreary night in November, Victor infuses the spark of life into the body. At once the beauty he had planned dissolves. Breathless with horror, he rushes from the room. He wakes to find the creature standing by his bed, its hand stretched out. Victor flees into the streets.</p>
+            <p><strong>Chapter 6 - Recovery:</strong> As Victor recovers from a nervous fever, Clerval hands him a letter from Elizabeth. Victor avoids all sight of chemical instruments and gradually regains his spirits, helped by the arrival of spring.</p>
+            <p><strong>Chapter 7 - William's death:</strong> A letter from Alphonse reaches Victor with terrible news: William, his youngest brother, has been found strangled. In a violent thunderstorm, a flash of lightning reveals the creature near the spot, and Victor knows it is the murderer. He decides not to tell, certain no one would believe him.</p>
+          </div></div></div>
+        </div>
+      </div>
+
+      <h3 class="section-h reveal delay-3">Part II: The Creature's Story — Rejection (Chapters 8-16)</h3>
+      <div class="acc reveal delay-3">
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">P2</span>
+            <span class="txt">Chapters 8-16: The Trial and the Tale on the Glacier</span>
+            <span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+
+            <!-- REPRODUCTOR DE AUDIO -->
+            <div class="audio-wrap">
+              <div class="audio-player">
+                <button class="audio-btn play-pause-btn" data-lang="en" aria-label="Play or Pause">
+                  <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="audio-btn stop-btn" aria-label="Stop" style="display:none;">
+                  <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <p><strong>In brief:</strong> An innocent woman is executed, and in the mountains the Creature confronts his maker with his own account of what loneliness and rejection have made of him.</p>
+            <p><strong>Chapter 8 - Justine's trial:</strong> Justine is condemned for William's murder based on circumstantial evidence. She confesses falsely because her confessor threatened her. Justine is executed the next morning.</p>
+            <p><strong>Chapter 9 - Despair:</strong> Victor sinks into a dark guilt. To escape his thoughts, he sets off alone on a journey into the mountains of the Chamonix valley. The sublime scenery briefly restores some peace.</p>
+            <p><strong>Chapter 10 - The meeting on the glacier:</strong> Crossing the sea of ice, Victor sees the creature. The creature answers calmly and eloquently: he was benevolent and good, misery made him a fiend. He asks Victor to listen and follows him to a hut on the ice.</p>
+            <p><strong>Chapter 11 - Awakening:</strong> The creature describes the confusion of his first moments. He left Victor's apartment, wandered through the forest, and suffered from cold and hunger. When he entered a village, the inhabitants fled in terror or attacked him.</p>
+            <p><strong>Chapter 12-14 - Learning from the cottagers:</strong> The creature observes the cottage's inhabitants: De Lacey, Felix, and Agatha. He secretly gathers wood for them and learns their language. He learns about their history and the arrival of Safie.</p>
+            <p><strong>Chapter 15 - Books, the journal, and the first rejection:</strong> The creature finds books including <em>Paradise Lost</em> and Victor's journal. He resolves to try to win the cottagers' love, but Felix beats him and drives him away.</p>
+            <p><strong>Chapter 16 - Rejection and revenge:</strong> Despair and fury made him want to destroy everything. He burned the cottage. Near Geneva, he strangled William and put a portrait in Justine's dress to cast the blame on her. He ends by asking Victor to make him a female as hideous as himself.</p>
+          </div></div></div>
+        </div>
+      </div>
+
+      <h3 class="section-h reveal delay-4">Part III: Vengeance and Ruin (Chapters 17-24)</h3>
+      <div class="acc reveal delay-4">
+        <div class="acc">
+          <button class="acc-btn" aria-expanded="false">
+            <span class="idx">P3</span>
+            <span class="txt">Chapters 17-24: The Broken Promise and the Pursuit</span>
+            <span class="sign" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel"><div><div class="acc-inner">
+
+            <!-- REPRODUCTOR DE AUDIO -->
+            <div class="audio-wrap">
+              <div class="audio-player">
+                <button class="audio-btn play-pause-btn" data-lang="en" aria-label="Play or Pause">
+                  <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="audio-btn stop-btn" aria-label="Stop" style="display:none;">
+                  <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <p><strong>In brief:</strong> Victor's broken promise costs him everyone he loves, and the pursuit that follows carries both creator and creation to the ends of the earth.</p>
+            <p><strong>Chapter 17 - The bargain:</strong> The creature promises that if Victor makes a female, the two will leave Europe. Fearing for his family, Victor agrees.</p>
+            <p><strong>Chapter 18-19 - The journey to England and Scotland:</strong> Victor travels to England with Clerval to learn from scientists. He leaves Clerval and sails to the Orkneys to begin his work in a squalid hut.</p>
+            <p><strong>Chapter 20 - The destroyed creation:</strong> Victor considers that the female might be more malignant than the male. He tears the unfinished body to pieces. The creature swears revenge: "I shall be with you on your wedding-night."</p>
+            <p><strong>Chapter 21 - Accused of murder:</strong> Victor is brought before a magistrate. He is taken to see the body and recognizes his closest friend, Henry Clerval. Victor falls into a delirium and fever that lasts two months.</p>
+            <p><strong>Chapter 22-23 - The wedding night:</strong> Victor decides to marry Elizabeth at once and confront his enemy alone. After the ceremony, they sail across Lake Geneva. Victor hears a piercing scream and finds Elizabeth lifeless. At the open window he sees the creature. Victor's father, shocked by Elizabeth's death, dies within days.</p>
+            <p><strong>Chapter 24 - The pursuit and the end:</strong> Victor leaves Geneva to hunt the creature. He pursues him toward the Arctic until Walton's ship rescues him. Victor dies, telling Walton to seek happiness in tranquility. The creature enters the cabin, grieves over the body, and tells Walton of his own anguish, saying his crimes were the product of loneliness. He leaps from the window onto an ice raft and vanishes into the darkness.</p>
+          </div></div></div>
+        </div>
+      </div>
+
+      <h3 class="section-h reveal delay-4">Main Themes</h3>
+      <ul class="reveal delay-4">
+        <li><strong>Responsibility of the creator:</strong> Victor's real crime is not the act of creation but abandoning what he made.</li>
+        <li><strong>Ambition and the limits of knowledge:</strong> Walton and Victor both pursue glory at the cost of those around them.</li>
+        <li><strong>Isolation and the need for companionship:</strong> The Creature is made monstrous by rejection.</li>
+        <li><strong>Nature versus science:</strong> Mountains, storms, and lakes soothe and warn, while unrestrained experiment brings ruin.</li>
+        <li><strong>Appearance and judgment:</strong> The Creature's kindness is ignored because of how he looks.</li>
+        <li><strong>Revenge and its cost:</strong> The pursuit consumes both Victor and the Creature.</li>
+      </ul>
+
+      <h3 class="section-h reveal delay-4">Main Characters</h3>
+      <div class="reveal delay-4">
+        <ul class="fact-list">
+          <li><span class="k">Victor Frankenstein</span><span class="v">Genevan scientist who creates the creature, abandons it, and is destroyed by the consequences.</span></li>
+          <li><span class="k">The Creature</span><span class="v">Intelligent, sensitive being made by Victor; rejected by everyone, he turns to vengeance.</span></li>
+          <li><span class="k">Robert Walton</span><span class="v">Arctic explorer and frame narrator; hears Victor's story and records it in letters.</span></li>
+          <li><span class="k">Elizabeth Lavenza</span><span class="v">Orphan raised in the Frankenstein home; Victor's beloved and wife.</span></li>
+          <li><span class="k">Henry Clerval</span><span class="v">Victor's loyal childhood friend, a humanist and lover of poetry and languages.</span></li>
+          <li><span class="k">Alphonse Frankenstein</span><span class="v">Victor's devoted father, a respected Genevan public servant.</span></li>
+          <li><span class="k">William and Ernest</span><span class="v">Victor's younger brothers; William is the creature's first victim.</span></li>
+          <li><span class="k">Justine Moritz</span><span class="v">Family servant, falsely convicted and executed for William's murder.</span></li>
+          <li><span class="k">Krempe and Waldman</span><span class="v">Ingolstadt professors: one scorns Victor's old reading, the other inspires him.</span></li>
+          <li><span class="k">The De Lacey family</span><span class="v">Blind father, son Felix, daughter Agatha, and Safie; the cottagers the creature observes.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <nav class="chapter-nav" id="chapterNav" aria-label="Chapter navigation">
+    <button class="btn btn--sm" id="prevBtn">← Previous</button>
+    <span class="nav-pos" id="navPos" aria-live="polite">01 / 08</span>
+    <button class="btn btn--sm" id="nextBtn">Next →</button>
+  </nav>
+
+  <p class="colophon reveal">
+    Frankenstein: Beyond the Creation · A Literature in the Digital Age Project<br>
+    Based on the novel by Mary Wollstonecraft Shelley (1818) · Romanticism · Gothic Fiction<br><br>
+    <strong>Digital eBook Authors:</strong><br>
+    Nathalia Vera Alba · Carolina Castillo Montero<br>
+    Ana María Sánchez Prada · María Paz Leiva
+  </p>
+
+</main>
+
+<button class="to-top" id="toTop" aria-label="Back to top of the chapter">↑</button>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" aria-label="Close character profile">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- DATOS DE LOS PERSONAJES (OCULTOS) -->
+<div id="charData" hidden>
+  <!-- MAIN CHARACTERS -->
+  <article id="data-victor">
+    <h3 id="modalTitle">Victor Frankenstein</h3>
+    <span class="role-line">The Creator · Protagonist</span>
+    <h4>Description</h4>
+    <p>A young man from a distinguished Genevan family. He is intelligent, passionate, and curious, with an intense thirst for knowledge that becomes obsession. As a child he is deeply loved and sheltered; as a student he isolates himself and ruins his health to pursue his goal. He is capable of deep affection but also of cowardice and self-absorption.</p>
+    <h4>Role in the story</h4>
+    <p>He discovers how to give life to inanimate matter and creates the Creature, but flees in horror at its appearance and abandons it. Out of fear that no one will believe him, he stays silent while Justine is condemned for William's murder. He later promises to make a companion for the Creature, destroys the work, and so triggers the Creature's revenge on those he loves.</p>
+    <h4>Fate</h4>
+    <p>Having lost his brother, friend, bride, and father, he spends his final days chasing the Creature to the Arctic and dies aboard Walton's ship, still uncertain whether he did right.</p>
+  </article>
+
+  <article id="data-creature">
+    <h3 id="modalTitle">The Creature</h3>
+    <span class="role-line">The Creation · Antagonist</span>
+    <h4>Description</h4>
+    <p>A being about eight feet tall, assembled by Victor, with yellow skin that barely covers the muscles beneath, watery eyes, and black lips. Despite his terrifying look he is intelligent, sensitive, and eloquent. He teaches himself language and morality by secretly watching the De Lacey family and by reading <em>Paradise Lost</em>, Plutarch's <em>Lives</em>, and <em>The Sorrows of Werter</em>.</p>
+    <h4>Role in the story</h4>
+    <p>Rejected by everyone he meets, including his creator, he turns from a gentle, benevolent being into a vengeful one. He kills William, frames Justine, demands a female companion from Victor, and, when Victor destroys her, kills Clerval and Elizabeth. He represents the consequences of abandonment and the injustice of judging by appearance.</p>
+    <h4>Fate</h4>
+    <p>After Victor's death he grieves over the body, takes responsibility for his crimes, and vows to burn himself on a funeral pyre in the far north.</p>
+  </article>
+
+  <article id="data-walton">
+    <h3 id="modalTitle">Robert Walton</h3>
+    <span class="role-line">The Frame Narrator</span>
+    <h4>Description</h4>
+    <p>An English sea captain in his twenties, self-educated, ambitious, and passionately determined to reach the North Pole and make a great discovery. He writes to his sister, Margaret Saville, and admits he is lonely and wishes for a friend who shares his tastes.</p>
+    <h4>Role in the story</h4>
+    <p>He rescues Victor, becomes his friend, and records his story. His own ambition mirrors Victor's, and Victor's warning gives him a chance to avoid the same mistake. He is also the one who witnesses the Creature's final confession.</p>
+    <h4>Fate</h4>
+    <p>When his crew demands it, he agrees to turn the ship south if it is freed from the ice, and he survives to write the end of the story.</p>
+  </article>
+
+  <article id="data-elizabeth">
+    <h3 id="modalTitle">Elizabeth Lavenza</h3>
+    <span class="role-line">The Emotional Centre</span>
+    <h4>Description</h4>
+    <p>A fair-haired, gentle, and calm girl, the orphaned daughter of a Milanese nobleman and a German mother, taken in by the Frankenstein at Lake Como. She is loving, compassionate, and loyal, and she often acts as a moral counterweight to Victor.</p>
+    <h4>Role in the story</h4>
+    <p>She grows up as Victor's closest companion and eventually his fiancée. She defends Justine at the trial and writes letters that keep Victor informed about home. Her marriage to Victor is delayed by his task for the Creature.</p>
+    <h4>Fate</h4>
+    <p>She is strangled by the Creature on her wedding night, fulfilling his threat.</p>
+  </article>
+
+  <article id="data-henry">
+    <h3 id="modalTitle">Henry Clerval</h3>
+    <span class="role-line">The Best Friend</span>
+    <h4>Description</h4>
+    <p>A cheerful, sociable, imaginative young man, the son of a Geneva merchant. He loves poetry, romances of chivalry, and languages, and he studies Oriental languages at Ingolstadt. He represents the humane, balanced figure Victor fails to be.</p>
+    <h4>Role in the story</h4>
+    <p>He nurses Victor through his long fever after the creation and accompanies him to England and Scotland. His company comforts Victor, and his death in Ireland is one of the Creature's most painful acts of revenge.</p>
+    <h4>Fate</h4>
+    <p>He is strangled by the Creature, and Victor is briefly accused of the murder.</p>
+  </article>
+
+  <!-- SUPPORTING CHARACTERS -->
+  <article id="data-alphonse">
+    <h3 id="modalTitle">Alphonse Frankenstein</h3>
+    <span class="role-line">The Father</span>
+    <h4>Description</h4>
+    <p>A respected Geneva official and a devoted, patient, and loving father. He is practical and rational and prefers measured responses to extreme ones.</p>
+    <h4>Role in the story</h4>
+    <p>He supports Victor through his grief, arranges for Clerval to join him in England, and urges the marriage to Elizabeth. He is also the one who comes to Ireland to free Victor.</p>
+    <h4>Fate</h4>
+    <p>He dies of grief a few days after Elizabeth's murder.</p>
+  </article>
+
+  <article id="data-caroline">
+    <h3 id="modalTitle">Caroline Beaufort</h3>
+    <span class="role-line">The Mother</span>
+    <h4>Description</h4>
+    <p>A kind and compassionate woman, daughter of a merchant ruined by poverty, who supported her father until Alphonse found her. She is generous and gentle and adopts Elizabeth.</p>
+    <h4>Role in the story</h4>
+    <p>Her death from scarlet fever, caught from Elizabeth, is Victor's first great loss. In his dream after the creation, Elizabeth turns into her corpse.</p>
+    <h4>Fate</h4>
+    <p>She dies before Victor leaves for Ingolstadt, asking that he and Elizabeth marry.</p>
+  </article>
+
+  <article id="data-justine">
+    <h3 id="modalTitle">Justine Moritz</h3>
+    <span class="role-line">The Tragic Servant</span>
+    <h4>Description</h4>
+    <p>A girl taken into the Frankenstein household after a childhood of mistreatment by her mother. She is devout, honest, grateful, and loved like a sister by Elizabeth.</p>
+    <h4>Role in the story</h4>
+    <p>Falsely accused of William's murder when the miniature portrait is found in her pocket, she is condemned. Pressured by her confessor, she makes a false confession. Victor, who knows she is innocent, does not speak up.</p>
+    <h4>Fate</h4>
+    <p>She is executed, and her death deepens Victor's remorse.</p>
+  </article>
+
+  <article id="data-william">
+    <h3 id="modalTitle">William Frankenstein</h3>
+    <span class="role-line">The First Victim</span>
+    <h4>Description</h4>
+    <p>A lively, affectionate, and beautiful child, loved by the whole family. He wears a miniature portrait of his mother around his neck.</p>
+    <h4>Role in the story</h4>
+    <p>He is the Creature's first murder victim. His death starts the chain of events that leads to Justine's execution and Victor's guilt.</p>
+    <h4>Fate</h4>
+    <p>He is strangled near Geneva.</p>
+  </article>
+
+  <article id="data-ernest">
+    <h3 id="modalTitle">Ernest Frankenstein</h3>
+    <span class="role-line">The Younger Brother</span>
+    <h4>Description</h4>
+    <p>A quieter brother who is mentioned mainly in letters and conversations at home. He wishes to follow a profession and is a comfort to his father.</p>
+    <h4>Role in the story</h4>
+    <p>He is a minor figure, but he remains one of the few members of the family still alive at the end of Victor's story.</p>
+    <h4>Fate</h4>
+    <p>He survives the novel's events as far as the narrative tells.</p>
+  </article>
+
+  <!-- SECONDARY CHARACTERS -->
+  <article id="data-waldman">
+    <h3 id="modalTitle">Professor Waldman</h3>
+    <span class="role-line">The Mentor · Ingolstadt</span>
+    <h4>Description</h4>
+    <p>A kind, gracious, middle-aged man with a gentle voice who speaks about science with respect and enthusiasm.</p>
+    <h4>Role in the story</h4>
+    <p>His lecture on the achievements of modern chemists inspires Victor to pursue the science that leads to the creation.</p>
+    <h4>Fate</h4>
+    <p>He appears only in Victor's student years.</p>
+  </article>
+
+  <article id="data-krempe">
+    <h3 id="modalTitle">Professor Krempe</h3>
+    <span class="role-line">The Critic · Ingolstadt</span>
+    <h4>Description</h4>
+    <p>A short, coarse-voiced man with an unpleasant appearance, rigid and scornful.</p>
+    <h4>Role in the story</h4>
+    <p>He dismisses Victor's reading of Agrippa, Paracelsus, and Albertus Magnus as wasted time, which at first discourages Victor from the sciences.</p>
+    <h4>Fate</h4>
+    <p>He later praises Victor's progress.</p>
+  </article>
+
+  <article id="data-delacey">
+    <h3 id="modalTitle">The De Lacey Family</h3>
+    <span class="role-line">The Cottagers</span>
+    <h4>Description</h4>
+    <p>A once-prosperous French family in exile: a blind and gentle father, a brave and devoted son (Felix), and a sweet, kind daughter (Agatha). They live in poverty and love each other deeply.</p>
+    <h4>Role in the story</h4>
+    <p>The Creature secretly observes them and learns from their example. De Lacey treats him kindly, but Felix, seeing him, beats him and drives him away, which pushes the Creature toward revenge.</p>
+    <h4>Fate</h4>
+    <p>They leave the cottage after the attack, and the Creature burns it.</p>
+  </article>
+
+  <article id="data-safie">
+    <h3 id="modalTitle">Safie</h3>
+    <span class="role-line">The Eastern Visitor</span>
+    <h4>Description</h4>
+    <p>A young woman from the East, daughter of a Turkish merchant and a Christian Arab mother. She is warm, independent, and brave, and she flees her father to join Felix.</p>
+    <h4>Role in the story</h4>
+    <p>Her arrival and French lessons give the Creature the chance to learn language, and her story shows loyalty and love.</p>
+    <h4>Fate</h4>
+    <p>She remains with the De Laceys until they leave.</p>
+  </article>
+
+  <article id="data-kirwin">
+    <h3 id="modalTitle">Mr. Kirwin</h3>
+    <span class="role-line">The Magistrate</span>
+    <h4>Description</h4>
+    <p>An old, benevolent man, calm and fair.</p>
+    <h4>Role in the story</h4>
+    <p>He examines Victor after Clerval's murder, shows him kindness during his illness, and sends for his father.</p>
+    <h4>Fate</h4>
+    <p>He appears only in Ireland.</p>
+  </article>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.prototype.slice.call((ctx || document).querySelectorAll(sel));
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const body       = document.body;
+  const chapters   = $$('.chapter');
+  const toc        = $('#toc');
+  const tocLinks   = $$('.toc-list a');
+  const scrim      = $('#scrim');
+  const menuBtn    = $('#menuBtn');
+  const tocClose   = $('#tocClose');
+  const themeBtn   = $('#themeBtn');
+  const progressBar= $('#progressBar');
+  const prevBtn    = $('#prevBtn');
+  const nextBtn    = $('#nextBtn');
+  const navPos     = $('#navPos');
+  const beginBtn   = $('#beginBtn');
+  const toTop      = $('#toTop');
+  
+  const musicBtn   = $('#musicBtn');
+  const bgMusic    = $('#bgMusic');
+  let isMusicPlaying = false;
+
+  let current = 0;
+
+  /* ==========================================================================
+     LÓGICA DE MÚSICA DE FONDO (AMBIENTAL)
+     ========================================================================== */
+  
+  function updateMusicUI() {
+    if (isMusicPlaying) {
+      musicBtn.textContent = '🎵';
+      musicBtn.classList.add('playing');
+      musicBtn.setAttribute('aria-label', 'Mute background music');
+    } else {
+      musicBtn.textContent = '🔇';
+      musicBtn.classList.remove('playing');
+      musicBtn.setAttribute('aria-label', 'Play background music');
+    }
+  }
+
+  function toggleMusic() {
+    if (bgMusic.paused) {
+      bgMusic.muted = false;
+      bgMusic.play().then(() => {
+        isMusicPlaying = true;
+        updateMusicUI();
+      }).catch(e => {
+        console.log("Autoplay bloqueado o error de enlace:", e);
+      });
+    } else {
+      bgMusic.pause();
+      isMusicPlaying = false;
+      updateMusicUI();
+    }
+  }
+
+  musicBtn.addEventListener('click', toggleMusic);
+  bgMusic.volume = 0.3;
+
+  if (beginBtn) {
+    beginBtn.addEventListener('click', () => {
+      if (bgMusic.paused) {
+        bgMusic.muted = false;
+        bgMusic.play().then(() => {
+          isMusicPlaying = true;
+          updateMusicUI();
+        }).catch(e => console.log("Autoplay bloqueado:", e));
+      }
+      goTo(1);
+    });
+  }
+
+  window.addEventListener('load', () => {
+    bgMusic.play().catch(e => {
+      console.log("Autoplay silenciado bloqueado, se necesita interacción del usuario.");
+    });
+  });
+
+  /* ==========================================================================
+     LÓGICA DE LECTURA DE TEXTO (TEXT-TO-SPEECH) PROFESIONAL
+     ========================================================================== */
+  const synth = window.speechSynthesis;
+  let currentUtterance = null;
+  let activePlayer = null; // El contenedor .audio-player activo
+
+  const playPauseBtns = $$('.play-pause-btn');
+  const stopBtns = $$('.stop-btn');
+
+  // Función para reiniciar la interfaz de un reproductor específico
+  function resetAudioUI(player) {
+    if (!player) return;
+    const playBtn = player.querySelector('.play-pause-btn');
+    const stopBtn = player.querySelector('.stop-btn');
+    const iconPlay = playBtn.querySelector('.icon-play');
+    const iconPause = playBtn.querySelector('.icon-pause');
+
+    playBtn.classList.remove('playing');
+    playBtn.setAttribute('aria-label', 'Play');
+    iconPlay.style.display = 'block';
+    iconPause.style.display = 'none';
+    stopBtn.style.display = 'none';
+  }
+
+  // Detener todo el audio (usado al cambiar de página o acordeón)
+  function stopAllAudio() {
+    synth.cancel();
+    if (activePlayer) {
+      resetAudioUI(activePlayer);
+    }
+    currentUtterance = null;
+    activePlayer = null;
+  }
+
+  playPauseBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const player = this.closest('.audio-player');
+      const iconPlay = this.querySelector('.icon-play');
+      const iconPause = this.querySelector('.icon-pause');
+      const stopBtn = player.querySelector('.stop-btn');
+
+      // Caso 1: Se hace clic en un reproductor diferente al que está activo
+      if (activePlayer !== player) {
+        stopAllAudio(); // Detiene cualquier audio previo
+        activePlayer = player; // Establece el nuevo
+      }
+
+      // Caso 2: El audio está reproduciéndose actualmente
+      if (synth.speaking && !synth.paused) {
+        synth.pause();
+        this.classList.remove('playing');
+        iconPlay.style.display = 'block';
+        iconPause.style.display = 'none';
+        return;
+      }
+
+      // Caso 3: El audio está pausado y se va a reanudar
+      if (synth.paused) {
+        synth.resume();
+        this.classList.add('playing');
+        iconPlay.style.display = 'none';
+        iconPause.style.display = 'block';
+        return;
+      }
+
+      // Caso 4: Iniciar nueva reproducción
+      const accInner = player.closest('.acc-inner');
+      const paragraphs = accInner.querySelectorAll('p');
+      let textToRead = '';
+      paragraphs.forEach(p => textToRead += p.textContent + ' ');
+
+      if (textToRead.trim() === '') return;
+
+      currentUtterance = new SpeechSynthesisUtterance(textToRead);
+      currentUtterance.lang = 'en-US';
+      currentUtterance.rate = 0.9;
+      
+      currentUtterance.onend = () => {
+        resetAudioUI(player);
+        activePlayer = null;
+      };
+
+      // Actualizar UI
+      this.classList.add('playing');
+      iconPlay.style.display = 'none';
+      iconPause.style.display = 'block';
+      stopBtn.style.display = 'flex';
+
+      synth.speak(currentUtterance);
+    });
+  });
+
+  stopBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      stopAllAudio();
+    });
+  });
+
+  /* ==========================================================================
+     INTERACCIÓN 1: PARALLAX DE HUMO Y FONDO MOVEMENT
+     ========================================================================== */
+  const smoke1 = $('#smoke1');
+  const smoke2 = $('#smoke2');
+  const smoke3 = $('#smoke3');
+  const movementBgContainer = $('#movementBgContainer');
+  
+  let mouseX = 0, mouseY = 0;
+  let targetX = 0, targetY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    if (prefersReduced) return;
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+    targetX = mouseX * -30;
+    targetY = mouseY * -30;
+
+    smoke1.style.transform = `translate(${targetX}px, ${targetY}px)`;
+    smoke2.style.transform = `translate(${targetX * 1.5}px, ${targetY * 1.5}px)`;
+    smoke3.style.transform = `translate(${targetX * 0.5}px, ${targetY * 0.5}px)`;
+
+    if (movementBgContainer) {
+      movementBgContainer.style.transform = `translate(${targetX * -0.8}px, ${targetY * -0.8}px)`;
+    }
+  });
+
+  /* ==========================================================================
+     INTERACCIÓN 2: EFECTO TILT 3D EN IMÁGENES Y TARJETAS
+     ========================================================================== */
+  const tiltTargets = $$('.tilt-target');
+
+  tiltTargets.forEach(card => {
+    card.style.transition = 'transform 0.1s ease-out, box-shadow 0.3s ease';
+
+    card.addEventListener('mousemove', (e) => {
+      if (prefersReduced) return;
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left; 
+      const y = e.clientY - rect.top;
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * -10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform 0.5s ease, box-shadow 0.3s ease';
+      card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+    });
+  });
+
+  /* SCROLL REVEAL ANIMATIONS */
+  const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px 0px -10% 0px',
+    threshold: 0.1
+  };
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  function observeReveals() {
+    revealElements.forEach(el => {
+      if (!el.classList.contains('is-visible')) {
+        observer.observe(el);
+      }
+    });
+  }
+
+  /* THEME */
+  function applyTheme(mode) {
+    const isLight = mode === 'light';
+    body.classList.toggle('theme-light', isLight);
+    themeBtn.textContent = isLight ? 'Dark' : 'Light';
+    themeBtn.setAttribute('aria-label', isLight ? 'Switch to dark reading theme' : 'Switch to light reading theme');
+    try { localStorage.setItem('frank-theme', mode); } catch (e) {}
+  }
+
+  let savedTheme = 'dark';
+  try { savedTheme = localStorage.getItem('frank-theme') || 'dark'; } catch (e) {}
+  applyTheme(savedTheme);
+
+  themeBtn.addEventListener('click', function () {
+    applyTheme(body.classList.contains('theme-light') ? 'dark' : 'light');
+  });
+
+  /* CHAPTER NAVIGATION */
+  function indexOfId(id) {
+    for (let i = 0; i < chapters.length; i++) {
+      if (chapters[i].id === id) return i;
+    }
+    return -1;
+  }
+
+  function totalChapters() { return chapters.length; }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function goTo(index, updateHash) {
+    stopAllAudio(); // Detener el audio al cambiar de página
+
+    if (index < 0) index = 0;
+    if (index > totalChapters() - 1) index = totalChapters() - 1;
+
+    chapters.forEach(function (ch, n) {
+      ch.classList.toggle('is-active', n === index);
+      
+      if (n === index) {
+        const elementsToAnimate = ch.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+        elementsToAnimate.forEach(el => el.classList.remove('is-visible'));
+      }
+    });
+
+    current = index;
+    const pct = ((index + 1) / totalChapters()) * 100;
+    progressBar.style.width = pct + '%';
+
+    tocLinks.forEach(function (link) {
+      const isActive = link.getAttribute('data-target') === chapters[index].id;
+      link.classList.toggle('active', isActive);
+      if (isActive) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === totalChapters() - 1;
+    navPos.textContent = pad(index + 1) + ' / ' + pad(totalChapters());
+
+    window.scrollTo({ top: 0, behavior: 'auto' });
+
+    setTimeout(() => {
+      observeReveals();
+    }, 50);
+
+    const heading = chapters[index].querySelector('h1, h2');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      try { heading.focus({ preventScroll: true }); } catch (e) { heading.focus(); }
+    }
+
+    if (updateHash !== false && window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', '#' + chapters[index].id);
+    }
+
+    closeToc();
+    updateToTop();
+  }
+
+  prevBtn.addEventListener('click', function () { goTo(current - 1); });
+  nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+  /* TOC DRAWER */
+  function openToc() {
+    toc.classList.add('open');
+    toc.setAttribute('aria-hidden', 'false');
+    scrim.hidden = false;
+    void scrim.offsetWidth;
+    scrim.classList.add('open');
+    menuBtn.setAttribute('aria-expanded', 'true');
+    body.classList.add('no-scroll');
+    tocClose.focus();
+  }
+
+  function closeToc() {
+    if (!toc.classList.contains('open')) return;
+    toc.classList.remove('open');
+    toc.setAttribute('aria-hidden', 'true');
+    scrim.classList.remove('open');
+    scrim.hidden = true;
+    menuBtn.setAttribute('aria-expanded', 'false');
+    body.classList.remove('no-scroll');
+  }
+
+  menuBtn.addEventListener('click', function () {
+    if (toc.classList.contains('open')) { closeToc(); menuBtn.focus(); }
+    else { openToc(); }
+  });
+
+  tocClose.addEventListener('click', function () { closeToc(); menuBtn.focus(); });
+  scrim.addEventListener('click', function () { closeToc(); menuBtn.focus(); });
+
+  tocLinks.forEach(function (link) {
+    link.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      const idx = indexOfId(link.getAttribute('data-target'));
+      if (idx >= 0) goTo(idx);
+    });
+  });
+
+  /* BACK TO TOP */
+  function updateToTop() {
+    if (window.scrollY > 260) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  }
+
+  window.addEventListener('scroll', updateToTop, { passive: true });
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+  });
+
+  /* ACCORDIONS */
+  $$('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const item = btn.parentElement;
+      const isOpen = item.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      
+      // Si se cierra el acordeón, detener la lectura
+      if (!isOpen) {
+        stopAllAudio();
+      }
+    });
+  });
+
+  /* CHARACTER MODAL */
+  const modal      = $('#modal');
+  const modalBody  = $('#modalBody');
+  const modalClose = $('#modalClose');
+  let lastFocus    = null;
+
+  function openModal(key, trigger) {
+    const source = document.getElementById('data-' + key);
+    if (!source) return;
+
+    lastFocus = trigger || null;
+    modalBody.innerHTML = source.innerHTML;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    body.classList.add('no-scroll');
+    modalClose.focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    modalBody.innerHTML = '';
+    body.classList.remove('no-scroll');
+    if (lastFocus) { lastFocus.focus(); lastFocus = null; }
+  }
+
+  $$('.char-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      openModal(card.getAttribute('data-char'), card);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  $$('[data-close-modal]').forEach(function (el) { el.addEventListener('click', closeModal); });
+
+  /* KEYBOARD NAVIGATION */
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' || ev.key === 'Esc') {
+      if (modal.classList.contains('open')) { closeModal(); return; }
+      if (toc.classList.contains('open')) { closeToc(); menuBtn.focus(); return; }
+    }
+
+    const tag = (ev.target && ev.target.tagName) ? ev.target.tagName.toLowerCase() : '';
+    if (tag === 'textarea' || tag === 'input' || tag === 'select') return;
+    if (ev.target && ev.target.isContentEditable) return;
+    if (modal.classList.contains('open') || toc.classList.contains('open')) return;
+    if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+
+    if (ev.key === 'ArrowRight' && current < totalChapters() - 1) goTo(current + 1);
+    else if (ev.key === 'ArrowLeft' && current > 0) goTo(current - 1);
+  });
+
+  /* FOCUS TRAP FOR MODAL */
+  modal.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Tab') return;
+    const focusables = $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modal).filter(function (el) {
+      return !el.disabled && el.offsetParent !== null;
+    });
+    if (!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length - 1];
+
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+  });
+
+  /* INITIALISE */
+  (function init() {
+    let startIndex = 0;
+    if (window.location.hash) {
+      const idx = indexOfId(window.location.hash.replace('#', ''));
+      if (idx >= 0) startIndex = idx;
+    }
+    goTo(startIndex, false);
+    updateToTop();
+  })();
+
+})();
+</script>
+
+</body>
+</html>
